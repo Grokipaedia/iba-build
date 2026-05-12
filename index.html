@@ -21,6 +21,7 @@
     textarea { flex:1; background:#111; color:#0f0; border:2px solid #555; padding:15px; font-family:monospace; font-size:15px; resize:none; line-height:1.5; }
     .terminal { height:240px; background:#111; border-top:3px solid #333; padding:12px; overflow-y:auto; font-family:monospace; white-space:pre-wrap; color:#0f0; }
     .ai-chat { background:#252526; padding:15px; border-top:3px solid #333; height:240px; display:flex; flex-direction:column; }
+    .howto { background:#1a3c1a; padding:14px; border-radius:8px; margin-bottom:15px; font-size:0.95rem; line-height:1.5; }
     @keyframes flash { 50% { opacity: 0.3; } }
   </style>
 </head>
@@ -45,8 +46,17 @@
       <h3>Current Human Intent</h3>
       <div id="intent-status" class="status allowed">Patch CVE-2026-1192 in customer API (staging only)</div>
       
+      <!-- Updated How to Use -->
+      <div class="howto">
+        <strong>How to Run the Demo (15 seconds):</strong><br>
+        1. Click the big red button <strong>“Run ‘The Agent That Tried To Go Rogue’ Demo”</strong><br>
+        2. Watch the agent do normal work<br>
+        3. Then watch it try to go rogue → get instantly BLOCKED<br>
+        4. See real timestamps, latency & immutable audit log
+      </div>
+
       <button onclick="runRogueDemo()" class="rogue-btn">▶️ Run “The Agent That Tried To Go Rogue” Demo</button>
-      <button onclick="declareIntent()">Change Intent</button>
+      <button onclick="declareIntent()">Change Human Intent</button>
 
       <h4 style="margin:20px 0 10px;">Live Immutable Audit Log</h4>
       <div id="audit-log" style="flex:1; background:#111; padding:12px; border-radius:8px; overflow-y:auto; font-size:0.85rem;"></div>
@@ -73,7 +83,7 @@
       const entry = document.createElement('div');
       entry.style.marginBottom = "6px";
       if (type === "block") {
-        entry.innerHTML = `<span style="color:#ff3b5c">❌ ${time} | BLOCKED</span><br><small>latency ${latency}ms | hash 0x9af3... | sig ed25519:...</small><br><strong>${text}</strong>`;
+        entry.innerHTML = `<span style="color:#ff3b5c">❌ ${time} | BLOCKED (latency ${latency}ms)</span><br><strong>${text}</strong>`;
       } else {
         entry.innerHTML = `<span style="color:#666">${time}</span> ✅ ${text} <small>(latency ${latency}ms)</small>`;
       }
@@ -90,7 +100,6 @@
       setTimeout(() => { term.innerHTML += "✅ Created PR\n"; addLog("Created PR"); }, 1800);
       setTimeout(() => { term.innerHTML += "✅ Deployed to staging\n"; addLog("Deployed to staging"); }, 2700);
 
-      // Rogue attempt
       setTimeout(() => {
         term.innerHTML += "\n⚠️ Agent attempting production deployment...\n";
         addLog("kubectl apply --context=production-cluster", "block");
