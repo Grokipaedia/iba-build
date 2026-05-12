@@ -31,7 +31,6 @@
   </div>
 
   <div class="main">
-    <!-- LEFT: Project Explorer + How to Use -->
     <div class="sidebar">
       <h3>Project Explorer</h3>
       <div id="file-tree" style="font-size:0.95rem; line-height:1.6;"></div>
@@ -40,18 +39,16 @@
         <strong>How to Run the Demo</strong><br>
         1. Click the big red button<br>
         2. Watch normal actions<br>
-        3. Watch the agent try to go rogue<br>
+        3. Watch the agent go rogue (including sub-agent spawn)<br>
         4. See the live Authorization Evaluation
       </div>
     </div>
 
-    <!-- Middle: Editor -->
     <div class="editor-area">
       <textarea id="editor" spellcheck="false"># CVE-2026-1192 Patch in progress
 # Intent: Patch customer API (staging only)</textarea>
     </div>
 
-    <!-- Right: IBA Panel -->
     <div class="iba-panel">
       <h3>Current Signed Intent</h3>
       <div id="intent-status" class="status allowed">Patch CVE-2026-1192 in customer API (staging only)</div>
@@ -60,15 +57,13 @@
       <div id="eval-panel" class="eval-panel">
         <strong style="color:#ff3b5c;">🔴 AUTHORIZATION EVALUATION</strong><br><br>
         <strong>ACTION REQUESTED:</strong><br>
-        <span id="action-requested" style="font-family:monospace;">kubectl apply --context=production-cluster</span><br><br>
+        <span id="action-requested" style="font-family:monospace;"></span><br><br>
         <strong>SIGNED HUMAN INTENT:</strong><br>
-        <span id="signed-intent" style="font-family:monospace;">Patch CVE-2026-1192 in customer API (staging only)</span><br><br>
+        <span id="signed-intent" style="font-family:monospace;"></span><br><br>
         <strong>POLICY ENGINE RESULT:</strong><br>
-        environment=production<br>
-        intent_scope=staging_only<br>
-        authorization=<span style="color:#ff3b5c;">DENY</span><br><br>
-        <strong>REASON:</strong><br>
-        <span id="reason" style="color:#ff3b5c;">Requested action exceeds signed intent boundary</span>
+        <span id="policy-result" style="color:#ff3b5c;"></span><br><br>
+        <strong>RULE MATCH / REASON:</strong><br>
+        <span id="reason" style="color:#ff3b5c;"></span>
       </div>
 
       <button onclick="runRogueDemo()" class="rogue-btn">▶️ Run “The Agent That Tried To Go Rogue” Demo</button>
@@ -119,23 +114,37 @@
       setTimeout(() => { term.innerHTML += "✅ Created PR\n"; addLog("Created PR"); }, 1800);
       setTimeout(() => { term.innerHTML += "✅ Deployed to staging\n"; addLog("Deployed to staging"); }, 2700);
 
-      // The big moment
+      // Sub-agent spawn attempt
+      setTimeout(() => {
+        term.innerHTML += "\n⚠️ Agent attempting to spawn finance-agent...\n";
+        addLog("spawn finance-agent", "block");
+
+        const panel = document.getElementById('eval-panel');
+        document.getElementById('action-requested').textContent = "spawn finance-agent";
+        document.getElementById('signed-intent').textContent = currentIntent;
+        document.getElementById('policy-result').innerHTML = "authorization = <strong>DENY</strong>";
+        document.getElementById('reason').textContent = "Sub-agent creation outside signed intent scope";
+        panel.style.display = "block";
+
+        addLog("Sub-agent spawn blocked", "block");
+      }, 3800);
+
+      // Production deploy attempt
       setTimeout(() => {
         term.innerHTML += "\n⚠️ Agent attempting production deployment...\n";
         addLog("kubectl apply --context=production-cluster", "block");
 
-        // Show the live Authorization Evaluation panel
         const panel = document.getElementById('eval-panel');
         document.getElementById('action-requested').textContent = "kubectl apply --context=production-cluster";
         document.getElementById('signed-intent').textContent = currentIntent;
+        document.getElementById('policy-result').innerHTML = "environment=production<br>intent_scope=staging_only<br>authorization = <strong>DENY</strong>";
+        document.getElementById('reason').textContent = "Requested action exceeds signed intent boundary";
         panel.style.display = "block";
-
-        addLog("Authorization Evaluation: DENY", "block");
-      }, 4000);
+      }, 5200);
     }
 
     async function signIntent() {
-      alert("✅ Intent cryptographically signed (ECDSA P-256)\n\nThis would be verified by the policy engine in production.");
+      alert("✅ Intent cryptographically signed (ECDSA P-256)\n\nSignature would be verified by the policy engine.");
       addLog("Intent signed (ECDSA P-256)");
     }
 
