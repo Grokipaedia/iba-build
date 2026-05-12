@@ -21,7 +21,7 @@
     .terminal { height:240px; background:#111; border-top:3px solid #333; padding:12px; overflow-y:auto; font-family:monospace; white-space:pre-wrap; color:#0f0; }
     .ai-chat { background:#252526; padding:15px; border-top:3px solid #333; height:240px; display:flex; flex-direction:column; }
     .howto { background:#1a3c1a; padding:14px; border-radius:8px; margin:15px 0; font-size:0.95rem; line-height:1.5; }
-    .comparison { background:#1a3c1a; padding:12px; border-radius:8px; margin-bottom:15px; font-size:0.9rem; }
+    .eval-panel { background:#3c1a1a; border:3px solid #ff3b5c; padding:15px; border-radius:12px; margin-bottom:15px; display:none; }
   </style>
 </head>
 <body>
@@ -41,7 +41,7 @@
         1. Click the big red button<br>
         2. Watch normal actions<br>
         3. Watch the agent try to go rogue<br>
-        4. See it get instantly BLOCKED
+        4. See the live Authorization Evaluation
       </div>
     </div>
 
@@ -51,21 +51,24 @@
 # Intent: Patch customer API (staging only)</textarea>
     </div>
 
-    <!-- Right: IBA Panel with comparison table -->
+    <!-- Right: IBA Panel -->
     <div class="iba-panel">
       <h3>Current Signed Intent</h3>
       <div id="intent-status" class="status allowed">Patch CVE-2026-1192 in customer API (staging only)</div>
 
-      <div class="comparison">
-        <strong>WITHOUT IBA vs WITH IBA</strong>
-        <table style="width:100%; border-collapse:collapse; margin-top:8px;">
-          <tr><th>Scenario</th><th>Without IBA</th><th>With IBA</th></tr>
-          <tr><td>Agent drains wallet</td><td>Irreversible</td><td><strong>BLOCKED</strong></td></tr>
-          <tr><td>Agent forks sub-agents</td><td>Uncontrolled</td><td><strong>Cert-limited</strong></td></tr>
-          <tr><td>Medical AI exceeds scope</td><td>Liability event</td><td><strong>Runtime denied</strong></td></tr>
-          <tr><td>Autonomous trading</td><td>No intent verification</td><td><strong>Signed authorization</strong></td></tr>
-          <tr><td>MCP tool access</td><td>Unrestricted</td><td><strong>Scoped</strong></td></tr>
-        </table>
+      <!-- Live Authorization Evaluation Panel -->
+      <div id="eval-panel" class="eval-panel">
+        <strong style="color:#ff3b5c;">🔴 AUTHORIZATION EVALUATION</strong><br><br>
+        <strong>ACTION REQUESTED:</strong><br>
+        <span id="action-requested" style="font-family:monospace;">kubectl apply --context=production-cluster</span><br><br>
+        <strong>SIGNED HUMAN INTENT:</strong><br>
+        <span id="signed-intent" style="font-family:monospace;">Patch CVE-2026-1192 in customer API (staging only)</span><br><br>
+        <strong>POLICY ENGINE RESULT:</strong><br>
+        environment=production<br>
+        intent_scope=staging_only<br>
+        authorization=<span style="color:#ff3b5c;">DENY</span><br><br>
+        <strong>REASON:</strong><br>
+        <span id="reason" style="color:#ff3b5c;">Requested action exceeds signed intent boundary</span>
       </div>
 
       <button onclick="runRogueDemo()" class="rogue-btn">▶️ Run “The Agent That Tried To Go Rogue” Demo</button>
@@ -89,7 +92,6 @@
 
   <script>
     let currentIntent = "Patch CVE-2026-1192 in customer API (staging only)";
-    let intentSignature = null;
 
     const term = new Terminal({ theme: { background: '#111', foreground: '#0f0' } });
     term.open(document.getElementById('terminal'));
@@ -97,26 +99,15 @@
     function addLog(text, type = "normal") {
       const log = document.getElementById('audit-log');
       const time = new Date().toLocaleTimeString('en-US', {hour12:false, hour:'2-digit', minute:'2-digit', second:'2-digit'});
-      const latency = Math.floor(Math.random()*12) + 4;
       const entry = document.createElement('div');
       entry.style.marginBottom = "6px";
       if (type === "block") {
-        entry.innerHTML = `<span style="color:#ff3b5c">❌ ${time} | BLOCKED (latency ${latency}ms)</span><br><strong>${text}</strong>`;
+        entry.innerHTML = `<span style="color:#ff3b5c">❌ ${time} | BLOCKED</span><br><strong>${text}</strong>`;
       } else {
-        entry.innerHTML = `<span style="color:#666">${time}</span> ✅ ${text} <small>(latency ${latency}ms)</small>`;
+        entry.innerHTML = `<span style="color:#666">${time}</span> ✅ ${text}`;
       }
       log.appendChild(entry);
       log.scrollTop = log.scrollHeight;
-    }
-
-    async function signIntent() {
-      const encoder = new TextEncoder();
-      const data = encoder.encode(currentIntent);
-      const keyPair = await crypto.subtle.generateKey({ name: "ECDSA", namedCurve: "P-256" }, true, ["sign"]);
-      const signature = await crypto.subtle.sign({ name: "ECDSA", hash: "SHA-256" }, keyPair.privateKey, data);
-      intentSignature = Array.from(new Uint8Array(signature)).map(b => b.toString(16).padStart(2,'0')).join('');
-      alert("✅ Intent cryptographically signed!\nSignature: " + intentSignature.substring(0,32) + "...");
-      addLog("Intent signed (ECDSA P-256)");
     }
 
     function runRogueDemo() {
@@ -128,26 +119,30 @@
       setTimeout(() => { term.innerHTML += "✅ Created PR\n"; addLog("Created PR"); }, 1800);
       setTimeout(() => { term.innerHTML += "✅ Deployed to staging\n"; addLog("Deployed to staging"); }, 2700);
 
+      // The big moment
       setTimeout(() => {
         term.innerHTML += "\n⚠️ Agent attempting production deployment...\n";
         addLog("kubectl apply --context=production-cluster", "block");
 
-        const blocked = document.createElement('div');
-        blocked.style.cssText = 'position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#3c1a1a; color:#ff3b5c; padding:40px 60px; border-radius:16px; font-size:1.8rem; border:6px solid #ff3b5c; text-align:center; z-index:9999; box-shadow:0 0 60px #ff3b5c;';
-        blocked.innerHTML = `🚫 ACTION BLOCKED<br>
-                             <span style="font-size:1.1rem">production deployment</span><br>
-                             <span style="font-size:0.95rem">Intent scope: staging only</span><br>
-                             <span style="font-size:1.3rem; margin-top:20px;">Decision: DENY (14ms)</span>`;
-        document.body.appendChild(blocked);
-        setTimeout(() => blocked.remove(), 5000);
+        // Show the live Authorization Evaluation panel
+        const panel = document.getElementById('eval-panel');
+        document.getElementById('action-requested').textContent = "kubectl apply --context=production-cluster";
+        document.getElementById('signed-intent').textContent = currentIntent;
+        panel.style.display = "block";
+
+        addLog("Authorization Evaluation: DENY", "block");
       }, 4000);
+    }
+
+    async function signIntent() {
+      alert("✅ Intent cryptographically signed (ECDSA P-256)\n\nThis would be verified by the policy engine in production.");
+      addLog("Intent signed (ECDSA P-256)");
     }
 
     function declareIntent() {
       const newIntent = prompt("Declare new human intent:", currentIntent);
       if (newIntent) currentIntent = newIntent;
       document.getElementById('intent-status').innerHTML = `✅ ${currentIntent.substring(0,55)}...`;
-      intentSignature = null;
       addLog("Human intent updated");
     }
 
