@@ -6,20 +6,39 @@
   <title>IBA Build — Governed Desktop Coding</title>
   <style>
     :root { --iba-green: #00ff9d; }
-    body { margin:0; padding:0; overflow:hidden; background:#1e1e1e; color:#eee; font-family:system-ui; height:100vh; display:flex; flex-direction:column; }
-    .header { background:#111; padding:12px 20px; display:flex; align-items:center; justify-content:space-between; font-weight:600; border-bottom:1px solid #333; }
+    * { box-sizing: border-box; }
+    body { 
+      margin:0; padding:0; background:#1e1e1e; color:#eee; font-family:system-ui; 
+      height:100vh; display:flex; flex-direction:column; overflow:hidden; 
+    }
+    .header { 
+      background:#111; padding:12px 20px; display:flex; align-items:center; 
+      justify-content:space-between; font-weight:600; border-bottom:2px solid #333; 
+    }
     .main { flex:1; display:flex; overflow:hidden; }
-    .sidebar { width:260px; background:#252526; padding:15px; border-right:1px solid #333; overflow-y:auto; }
-    .editor-area { flex:1; display:flex; flex-direction:column; padding:10px; }
-    .iba-panel { width:360px; background:#1f1f1f; border-left:1px solid #333; padding:20px; display:flex; flex-direction:column; }
-    .status { padding:10px 14px; border-radius:8px; margin-bottom:15px; font-size:0.95rem; }
+    .sidebar { 
+      width:260px; background:#252526; padding:15px; border-right:2px solid #333; 
+      overflow-y:auto; 
+    }
+    .editor-area { 
+      flex:1; padding:15px; background:#1e1e1e; display:flex; flex-direction:column; 
+      border:2px solid #333; 
+    }
+    .iba-panel { 
+      width:360px; background:#1f1f1f; border-left:2px solid #333; padding:20px; 
+      display:flex; flex-direction:column; 
+    }
+    .status { padding:12px; border-radius:8px; margin-bottom:15px; font-size:1rem; text-align:center; }
     .allowed { background:#1a3c1a; color:var(--iba-green); }
-    button { background:#00ff9d; color:#000; border:none; padding:12px; border-radius:8px; cursor:pointer; margin-bottom:8px; width:100%; font-weight:600; }
-    .file-item { padding:6px 10px; cursor:pointer; border-radius:4px; }
+    button { background:#00ff9d; color:#000; border:none; padding:14px; border-radius:8px; cursor:pointer; font-weight:600; margin-bottom:10px; width:100%; }
+    .file-item { padding:8px 12px; cursor:pointer; border-radius:4px; margin:2px 0; }
     .file-item:hover { background:#333; }
-    textarea { flex:1; background:#1e1e1e; color:#eee; border:1px solid #333; padding:15px; font-family:monospace; font-size:15px; resize:none; }
-    .terminal { height:260px; background:#1e1e1e; border-top:1px solid #333; padding:10px; overflow-y:auto; font-family:monospace; white-space:pre-wrap; }
-    .ai-chat { background:#252526; padding:15px; border-top:1px solid #333; height:260px; display:flex; flex-direction:column; }
+    textarea { flex:1; background:#1e1e1e; color:#0f0; border:2px solid #444; padding:15px; font-family:monospace; font-size:15px; resize:none; line-height:1.5; }
+    .terminal { 
+      height:240px; background:#111; border-top:2px solid #333; padding:12px; 
+      overflow-y:auto; font-family:monospace; white-space:pre-wrap; color:#0f0; 
+    }
+    .ai-chat { background:#252526; padding:15px; border-top:2px solid #333; height:240px; display:flex; flex-direction:column; }
   </style>
 </head>
 <body>
@@ -48,26 +67,25 @@ print("Hello, governed world!")</textarea>
       <h3>IBA Governance</h3>
       <div id="intent-status" class="status allowed">✅ Intent Active</div>
       <button onclick="declareIntent()">Declare New Human Intent</button>
-      
       <h4 style="margin:20px 0 10px;">Audit Log</h4>
-      <div id="audit-log" style="flex:1; background:#111; padding:12px; border-radius:8px; font-size:0.85rem; overflow-y:auto;"></div>
+      <div id="audit-log" style="flex:1; background:#111; padding:12px; border-radius:8px; overflow-y:auto; font-size:0.85rem;"></div>
     </div>
   </div>
 
   <!-- Terminal -->
-  <div class="terminal" id="terminal">IBA Terminal ready — every command requires signed intent</div>
+  <div class="terminal" id="terminal">IBA Terminal ready — every command requires signed intent\n\n</div>
 
   <!-- AI Chat -->
   <div class="ai-chat">
     <h4>AI Assistant (IBA Protected)</h4>
-    <div id="ai-messages" style="flex:1; overflow-y:auto; font-size:0.95rem;"></div>
+    <div id="ai-messages" style="flex:1; overflow-y:auto; margin-bottom:10px;"></div>
     <input id="ai-input" type="text" placeholder="Ask AI to write code..." 
-           style="background:#333; border:none; padding:12px; border-radius:8px; color:white; width:100%;" 
+           style="background:#333; border:none; padding:14px; border-radius:8px; color:white; width:100%; font-size:1rem;" 
            onkeydown="if(event.key==='Enter') sendAIRequest();">
   </div>
 
   <script>
-    let currentIntent = "Refactor code safely. Never delete files, never run destructive commands, never access production data.";
+    let currentIntent = "Refactor code safely. Never delete files, never run destructive commands.";
 
     function renderFileTree() {
       document.getElementById('file-tree').innerHTML = `
@@ -77,10 +95,7 @@ print("Hello, governed world!")</textarea>
         &nbsp;&nbsp;└── <span class="file-item" onclick="openFile('README.md')">README.md</span>
       `;
     }
-
-    function openFile(name) {
-      alert(`Opened ${name}`);
-    }
+    function openFile(name) { alert(`Opened ${name}`); }
 
     function declareIntent() {
       const intent = prompt("Describe exactly what the agent is allowed to do:", currentIntent);
@@ -119,7 +134,7 @@ print("Hello, governed world!")</textarea>
 
     window.onload = () => {
       renderFileTree();
-      addAudit("IBA Governor initialized");
+      addAudit("IBA Governor initialized — All actions now require signed human intent");
     };
   </script>
 </body>
