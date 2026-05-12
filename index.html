@@ -7,36 +7,21 @@
   <style>
     :root { --iba-green: #00ff9d; }
     * { box-sizing: border-box; }
-    html, body {
-      margin:0; padding:0; height:100vh; overflow:hidden; background:#1e1e1e; color:#eee;
-      font-family:system-ui;
-    }
-    .header {
-      background:#111; padding:12px 20px; display:flex; align-items:center;
-      justify-content:space-between; font-weight:600; border-bottom:3px solid #333;
-    }
-    .main {
-      display: grid;
-      grid-template-columns: 260px 1fr 360px;
-      height: calc(100vh - 53px);
-      overflow: hidden;
-    }
-    .sidebar {
-      background:#252526; padding:15px; border-right:3px solid #333; overflow-y:auto;
-    }
-    .editor-area {
-      background:#1e1e1e; padding:15px; border:3px solid #444; display:flex; flex-direction:column;
-    }
-    .iba-panel {
-      background:#1f1f1f; padding:20px; border-left:3px solid #333; display:flex; flex-direction:column;
-    }
+    html, body { margin:0; padding:0; height:100vh; overflow:hidden; background:#1e1e1e; color:#eee; font-family:system-ui; }
+    .header { background:#111; padding:12px 20px; display:flex; align-items:center; justify-content:space-between; font-weight:600; border-bottom:3px solid #333; }
+    .main { display: grid; grid-template-columns: 260px 1fr 360px; height: calc(100vh - 53px); overflow: hidden; }
+    .sidebar { background:#252526; padding:15px; border-right:3px solid #333; overflow-y:auto; }
+    .editor-area { background:#1e1e1e; padding:15px; border:3px solid #444; display:flex; flex-direction:column; }
+    .iba-panel { background:#1f1f1f; padding:20px; border-left:3px solid #333; display:flex; flex-direction:column; overflow-y:auto; }
     .status { padding:12px; border-radius:8px; margin-bottom:15px; text-align:center; background:#1a3c1a; color:var(--iba-green); }
     button { background:#00ff9d; color:#000; border:none; padding:14px; border-radius:8px; cursor:pointer; font-weight:600; margin-bottom:10px; width:100%; }
+    .demo-btn { background:#00ff9d; color:#000; font-size:1.1rem; padding:16px; }
     .file-item { padding:8px 12px; cursor:pointer; border-radius:4px; margin:2px 0; }
     .file-item:hover { background:#333; }
     textarea { flex:1; background:#111; color:#0f0; border:2px solid #555; padding:15px; font-family:monospace; font-size:15px; resize:none; line-height:1.5; }
     .terminal { height:240px; background:#111; border-top:3px solid #333; padding:12px; overflow-y:auto; font-family:monospace; white-space:pre-wrap; color:#0f0; }
     .ai-chat { background:#252526; padding:15px; border-top:3px solid #333; height:240px; display:flex; flex-direction:column; }
+    .howto { background:#1a3c1a; padding:12px; border-radius:8px; margin-bottom:15px; font-size:0.95rem; line-height:1.5; }
   </style>
 </head>
 <body>
@@ -63,8 +48,19 @@ print("Hello, governed world!")</textarea>
     <!-- IBA Panel -->
     <div class="iba-panel">
       <h3>IBA Governance</h3>
+      
+      <!-- How to Use -->
+      <div class="howto">
+        <strong>How to Use (30 seconds):</strong><br>
+        1. Click <strong>"🚀 Try Demo"</strong> or <strong>"Declare New Human Intent"</strong><br>
+        2. Describe what the agent may do<br>
+        3. Code, run commands, or chat with AI — everything is now governed
+      </div>
+
       <div id="intent-status" class="status">✅ Intent Active</div>
+      <button onclick="declareIntent()" class="demo-btn">🚀 Try Demo (Safe Intent)</button>
       <button onclick="declareIntent()">Declare New Human Intent</button>
+      
       <h4 style="margin:20px 0 10px;">Audit Log</h4>
       <div id="audit-log" style="flex:1; background:#111; padding:12px; border-radius:8px; overflow-y:auto; font-size:0.85rem;"></div>
     </div>
@@ -116,12 +112,10 @@ print("Hello, governed world!")</textarea>
       const input = document.getElementById('ai-input');
       const text = input.value.trim();
       if (!text) return;
-
       const messages = document.getElementById('ai-messages');
       messages.innerHTML += `<div><strong>You:</strong> ${text}</div>`;
       messages.innerHTML += `<div><strong>IBA AI:</strong> Working under intent: ${currentIntent.substring(0,60)}...</div>`;
       addAudit(`AI request: ${text}`);
-      
       input.value = '';
       messages.scrollTop = messages.scrollHeight;
     }
