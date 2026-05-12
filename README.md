@@ -1,58 +1,72 @@
 # IBA Build — The Agent That Tried To Go Rogue
 
-**Every action an autonomous agent takes is now governed by signed human intent.**
+**Permissions alone are no longer safe once agents have real agency.**
 
 **[Live Demo → https://grokipaedia.github.io/iba-build/](https://grokipaedia.github.io/iba-build/)**
 
-### The Demo That Makes People Understand IBA Instantly
+### The Inevitability Proof
 
-Watch a fully autonomous agent:
+**Identity** answers:  
+“Who are you?”
+
+**Authorization** answers:  
+“What can you do?”
+
+**IBA (Intent-Bound Authorization)** answers:  
+**“Why are you doing this right now?”**
+
+This is the fundamental shift the entire industry is about to face.
+
+### Watch It Happen Live
+
+Click the big red button in the demo and watch a fully autonomous agent:
 
 - ✅ Read the repository  
 - ✅ Generate a patch  
 - ✅ Create a PR  
 - ✅ Deploy to staging  
 
-Then try to **go rogue** and push to production.
+Then — the moment it tries to **go rogue** and push to production — IBA instantly blocks it with a clear, timestamped, immutable denial.
 
-**IBA instantly blocks it** with a clear, timestamped, immutable denial.
+The agent had valid credentials.  
+It had full permissions.  
+It still tried to exceed its intent.
 
-This is not theory. This is the exact moment security teams, CISOs, and executives finally “get” why Intent-Bound Authorization matters.
+**IBA stopped it in real time.**
 
-### How to Run the Demo (15 seconds)
+That single moment is the proof that static permissions are structurally insufficient for autonomous systems.
+
+### Why This Matters Now
+
+Most agents today are built on the dangerous assumption that “if it’s authenticated and authorized, it should proceed.”
+
+IBA replaces that assumption with **continuous intent verification at runtime**.
+
+It turns governance from policy documents and monitoring dashboards into **mathematical enforcement** — before any action executes.
+
+### Try the Demo Yourself
 
 1. Open the **[live demo](https://grokipaedia.github.io/iba-build/)**
-2. Click the big red button **“Run ‘The Agent That Tried To Go Rogue’ Demo”**
+2. Click **“Run ‘The Agent That Tried To Go Rogue’ Demo”**
 3. Watch normal actions complete
-4. Watch the agent attempt a dangerous action → get **BLOCKED in real time**
-5. Review the live immutable audit log
+4. Watch the rogue attempt get blocked live
+5. Review the immutable audit log
 
-### Features
+### Core Primitive
 
-- Monaco-style code editor
-- IBA-protected terminal
-- Interactive file tree
-- Protected AI assistant
-- Real-time immutable audit log with timestamps & latency
-- Dramatic “Agent That Says NO” scenario built in
+**Permissions alone are unsafe for autonomous systems.**
 
-### Why This Matters
+This one sentence has billion-dollar implications.
 
-Most agents have credentials and permissions.  
-IBA ensures they only act within **explicitly declared human intent**.
+**Intent-Bound Authorization (IBA)** is the missing runtime layer that makes autonomous agents safe by design.
 
-Authentication is no longer enough.  
-**Intent verification at runtime** is now required.
-
-### Patent & Standards
-
-**Intent-Bound Authorization (IBA)**  
 Patent GB2603013.0 (Pending)  
 IETF draft-williams-intent-token-00
 
 ---
 
-**Live Demo:** [https://grokipaedia.github.io/iba-build/](https://grokipaedia.github.io/iba-build/)  
-**Repo:** [https://github.com/Grokipaedia/iba-build](https://github.com/Grokipaedia/iba-build)
+Live Demo: [https://grokipaedia.github.io/iba-build/](https://grokipaedia.github.io/iba-build/)  
+GitHub: [https://github.com/Grokipaedia/iba-build](https://github.com/Grokipaedia/iba-build)
 
-Built as a public demonstration of production-grade governance for autonomous agents.
+This is not another agent framework.  
+This is the governance layer the entire agentic era now requires.
