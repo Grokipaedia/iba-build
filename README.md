@@ -1,34 +1,58 @@
-# IBA Build — Governed Desktop Coding
+# IBA Build — The Agent That Tried To Go Rogue
 
-**Every single action requires signed human intent.**
+**Every action an autonomous agent takes is now governed by signed human intent.**
 
-Live Demo: **[https://grokipaedia.github.io/iba-build/](https://grokipaedia.github.io/iba-build/)**
+**[Live Demo → https://grokipaedia.github.io/iba-build/](https://grokipaedia.github.io/iba-build/)**
 
-### How to Use (30 seconds)
+### The Demo That Makes People Understand IBA Instantly
 
-1. Open the live demo above
-2. Click the big green button **"🚀 Try Demo (Safe Intent)"** or **"Declare New Human Intent"**
-3. Type what the agent is allowed to do (example: "Refactor code safely. Never delete files.")
-4. Use the editor, terminal, or AI chat — everything is now governed by your intent
-5. Watch the Audit Log on the right for every action
+Watch a fully autonomous agent:
 
-That’s it. No install. No setup.
+- ✅ Read the repository  
+- ✅ Generate a patch  
+- ✅ Create a PR  
+- ✅ Deploy to staging  
+
+Then try to **go rogue** and push to production.
+
+**IBA instantly blocks it** with a clear, timestamped, immutable denial.
+
+This is not theory. This is the exact moment security teams, CISOs, and executives finally “get” why Intent-Bound Authorization matters.
+
+### How to Run the Demo (15 seconds)
+
+1. Open the **[live demo](https://grokipaedia.github.io/iba-build/)**
+2. Click the big red button **“Run ‘The Agent That Tried To Go Rogue’ Demo”**
+3. Watch normal actions complete
+4. Watch the agent attempt a dangerous action → get **BLOCKED in real time**
+5. Review the live immutable audit log
 
 ### Features
+
 - Monaco-style code editor
 - IBA-protected terminal
 - Interactive file tree
-- AI Assistant that only works inside your declared intent
-- Live audit log of every decision
+- Protected AI assistant
+- Real-time immutable audit log with timestamps & latency
+- Dramatic “Agent That Says NO” scenario built in
 
 ### Why This Matters
-Most coding agents can do anything.  
-IBA Build forces them to do **only** what you explicitly authorized.
 
-Built as a public demonstration of **Intent-Bound Authorization (IBA)**.
+Most agents have credentials and permissions.  
+IBA ensures they only act within **explicitly declared human intent**.
 
-Patent GB2603013.0 (Pending) • IETF draft-williams-intent-token-00
+Authentication is no longer enough.  
+**Intent verification at runtime** is now required.
+
+### Patent & Standards
+
+**Intent-Bound Authorization (IBA)**  
+Patent GB2603013.0 (Pending)  
+IETF draft-williams-intent-token-00
 
 ---
 
-Made with IBA — the security layer for autonomous agents.
+**Live Demo:** [https://grokipaedia.github.io/iba-build/](https://grokipaedia.github.io/iba-build/)  
+**Repo:** [https://github.com/Grokipaedia/iba-build](https://github.com/Grokipaedia/iba-build)
+
+Built as a public demonstration of production-grade governance for autonomous agents.
