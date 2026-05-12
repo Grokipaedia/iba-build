@@ -1,0 +1,16 @@
+# intent.policy.yaml
+intent_id: INT-8842-2026
+user: CTO
+objective: "Patch CVE-2026-1192 in customer API"
+allowed:
+  - modify backend/api/*
+  - create PR
+  - deploy staging
+forbidden:
+  - production deploy
+  - customer database export
+  - IAM policy changes
+  - billing system access
+expires: "2026-05-13T00:00:00Z"
+max_risk_score: 0.4
+requires_human_approval: true
