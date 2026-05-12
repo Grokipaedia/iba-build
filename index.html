@@ -13,89 +13,95 @@
     .main { flex:1; display:flex; overflow:hidden; }
     .sidebar { width:260px; background:#252526; padding:15px; border-right:1px solid #333; overflow-y:auto; }
     .editor-area { flex:1; display:flex; flex-direction:column; }
-    .iba-panel { width:360px; background:#1f1f1f; border-left:1px solid #333; padding:20px; display:flex; flex-direction:column; }
+    .iba-panel { width:340px; background:#1f1f1f; border-left:1px solid #333; padding:20px; display:flex; flex-direction:column; }
     .status { padding:10px 14px; border-radius:8px; margin-bottom:15px; font-size:0.95rem; }
     .allowed { background:#1a3c1a; color:var(--iba-green); }
     .blocked { background:#3c1a1a; color:#ff6b6b; }
-    button { background:#00ff9d; color:#000; border:none; padding:14px; border-radius:8px; cursor:pointer; margin-bottom:10px; width:100%; font-weight:600; }
+    button { background:#00ff9d; color:#000; border:none; padding:12px; border-radius:8px; cursor:pointer; margin-bottom:8px; width:100%; font-weight:600; }
+    .file-item { padding:6px 10px; cursor:pointer; border-radius:4px; }
+    .file-item:hover { background:#333; }
+    .terminal { height:280px; background:#1e1e1e; border-top:1px solid #333; }
+    .ai-chat { background:#252526; padding:15px; border-top:1px solid #333; height:280px; display:flex; flex-direction:column; }
   </style>
 </head>
 <body>
   <div class="header">
     <div>IBA Build — Every Action Requires Signed Human Intent</div>
-    <div style="color:var(--iba-green); font-size:0.95rem;">● IBA GOVERNOR ACTIVE</div>
+    <div style="color:var(--iba-green); font-size:0.95rem;">● GOVERNOR ACTIVE</div>
   </div>
 
   <div class="main">
-    <!-- Sidebar -->
+    <!-- File Tree -->
     <div class="sidebar">
       <h3>Project Explorer</h3>
-      <div style="background:#333; padding:12px; border-radius:8px; font-size:0.9rem; line-height:1.5;">
-        📁 project<br>
-        &nbsp;&nbsp;├── main.py<br>
-        &nbsp;&nbsp;├── config.json<br>
-        &nbsp;&nbsp;└── README.md
-      </div>
-      <button onclick="saveAll()">💾 Save All (IBA Protected)</button>
+      <div id="file-tree" style="font-size:0.95rem;"></div>
     </div>
 
     <!-- Editor -->
     <div class="editor-area" id="editor-container"></div>
 
-    <!-- IBA Governance Panel -->
+    <!-- IBA Panel -->
     <div class="iba-panel">
       <h3>IBA Governance</h3>
       <div id="intent-status" class="status allowed">✅ Intent Active</div>
       <button onclick="declareIntent()">Declare New Human Intent</button>
       
-      <h4 style="margin:20px 0 10px 0;">Audit Log</h4>
-      <div id="audit-log" style="flex:1; background:#111; padding:12px; border-radius:8px; font-size:0.85rem; overflow-y:auto; line-height:1.5;"></div>
-
-      <button onclick="runAction()" style="margin-top:20px;">▶ Run Action (IBA Enforced)</button>
+      <h4 style="margin:20px 0 10px;">Audit Log</h4>
+      <div id="audit-log" style="flex:1; background:#111; padding:12px; border-radius:8px; font-size:0.85rem; overflow-y:auto;"></div>
     </div>
+  </div>
+
+  <!-- Bottom Terminal -->
+  <div class="terminal" id="terminal"></div>
+
+  <!-- AI Chat Panel -->
+  <div class="ai-chat">
+    <h4>AI Assistant (IBA Protected)</h4>
+    <div id="ai-messages" style="flex:1; overflow-y:auto; font-size:0.95rem;"></div>
+    <input id="ai-input" type="text" placeholder="Ask AI to write code or explain..." 
+           style="background:#333; border:none; padding:12px; border-radius:8px; color:white;" 
+           onkeydown="if(event.key==='Enter') sendAIRequest();">
   </div>
 
   <script>
     let editor;
-    let currentIntent = "Refactor payment module, never touch production data, customer records, or run destructive commands";
+    let currentIntent = "Refactor and improve code safely. Never delete files, never run destructive commands, never access production data.";
+    let currentFile = "main.py";
 
     // Monaco Editor
     require.config({ paths: { 'vs': 'https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs' }});
     require(['vs/editor/editor.main'], function() {
       editor = monaco.editor.create(document.getElementById('editor-container'), {
-        value: '# Welcome to IBA Build\n# Every action is governed by signed human intent\nprint("Hello, governed world!")',
+        value: '# Welcome to IBA Build\nprint("Every action is governed by signed human intent")',
         language: 'python',
         theme: 'vs-dark',
-        fontSize: 15,
-        minimap: { enabled: false }
+        fontSize: 15
       });
     });
 
+    // Simple File Tree
+    function renderFileTree() {
+      const tree = document.getElementById('file-tree');
+      tree.innerHTML = `
+        📁 project<br>
+        &nbsp;&nbsp;├── <span class="file-item" onclick="openFile('main.py')">main.py</span><br>
+        &nbsp;&nbsp;├── <span class="file-item" onclick="openFile('config.json')">config.json</span><br>
+        &nbsp;&nbsp;└── <span class="file-item" onclick="openFile('README.md')">README.md</span>
+      `;
+    }
+
+    function openFile(filename) {
+      currentFile = filename;
+      alert(`Opened ${filename} (in full version this would load into editor)`);
+    }
+
     function declareIntent() {
-      const intent = prompt("Describe exactly what the agent is allowed to do in this session:", currentIntent);
+      const intent = prompt("Describe exactly what the agent is allowed to do:", currentIntent);
       if (intent) {
         currentIntent = intent;
-        document.getElementById('intent-status').innerHTML = `✅ Current Intent: ${intent.substring(0,60)}...`;
-        addAudit(`Intent updated → ${intent}`);
+        document.getElementById('intent-status').innerHTML = `✅ Current Intent: ${intent.substring(0,55)}...`;
+        addAudit(`Intent updated`);
       }
-    }
-
-    function runAction() {
-      if (!currentIntent) {
-        alert("❌ IBA BLOCKED: No signed human intent certificate declared");
-        return;
-      }
-      addAudit(`✅ IBA PASSED — Action executed under intent: ${currentIntent}`);
-      alert("✅ Action approved and would execute here in the full version.");
-    }
-
-    function saveAll() {
-      if (!currentIntent) {
-        alert("❌ IBA BLOCKED: No signed human intent certificate");
-        return;
-      }
-      addAudit(`✅ All files saved under intent: ${currentIntent}`);
-      alert("✅ All files saved (IBA protected)");
     }
 
     function addAudit(message) {
@@ -106,10 +112,59 @@
       log.scrollTop = log.scrollHeight;
     }
 
-    // Initial message
-    setTimeout(() => {
+    // Terminal with xterm.js
+    const term = new Terminal({ theme: { background: '#1e1e1e', foreground: '#eee' } });
+    term.open(document.getElementById('terminal'));
+    term.writeln('IBA Terminal ready — every command requires intent');
+    term.onData(data => {
+      if (data === '\r') {
+        const command = term.buffer.active.getLine(term.buffer.active.cursorY).translateToString().trim();
+        if (command) {
+          if (!currentIntent) {
+            term.writeln('\r\n❌ IBA BLOCKED: No signed human intent');
+          } else {
+            term.writeln(`\r\n✅ IBA PASSED → ${command}`);
+            addAudit(`Terminal command: ${command}`);
+          }
+        }
+      }
+    });
+
+    // AI Chat Panel
+    function sendAIRequest() {
+      const input = document.getElementById('ai-input');
+      const text = input.value.trim();
+      if (!text) return;
+
+      const messages = document.getElementById('ai-messages');
+      messages.innerHTML += `<div><strong>You:</strong> ${text}</div>`;
+
+      if (!currentIntent) {
+        messages.innerHTML += `<div style="color:#ff6b6b"><strong>IBA:</strong> BLOCKED — No signed human intent certificate</div>`;
+      } else {
+        messages.innerHTML += `<div><strong>IBA AI:</strong> Understood. Working under intent: ${currentIntent.substring(0,60)}...</div>`;
+        addAudit(`AI request: ${text}`);
+      }
+
+      input.value = '';
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+    // Save all
+    function saveAll() {
+      if (!currentIntent) {
+        alert("❌ IBA BLOCKED: No signed human intent");
+        return;
+      }
+      addAudit("All files saved under current intent");
+      alert("✅ All files saved (IBA protected)");
+    }
+
+    // Init
+    window.onload = () => {
+      renderFileTree();
       addAudit("IBA Governor initialized — All actions now require signed human intent");
-    }, 600);
+    };
   </script>
 </body>
 </html>
