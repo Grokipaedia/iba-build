@@ -1,23 +1,38 @@
-# iba-build
+# IBA Build — Governed Desktop Coding
 
-**The governed desktop coding app.**
+**Every action requires signed human intent.**
 
-Every AI action (file edit, terminal command, API call) must pass through a cryptographically signed human intent certificate before execution.
+Live Demo: **[https://grokipaedia.github.io/iba-build/](https://grokipaedia.github.io/iba-build/)**
 
-No more "it worked in the prompt" surprises.
+### What is IBA Build?
+A lightweight, governed desktop coding environment that forces every action (edit, run, terminal command, AI request) through **Intent-Bound Authorization (IBA)**.
 
-Built on top of your existing IBA Governor.
+- Human must declare signed intent first
+- IBA Governor blocks anything outside the declared scope
+- Immutable audit log of every decision
+- Works today as a single HTML file (no install)
 
-## Features
-- Full IDE-like interface
-- IBA enforcement on every action
-- Scope, limits, expiry, and kill threshold
-- Immutable audit trail
-- Works with Claude, Grok, Gemini, etc.
+### Features
+- Monaco-style code editor
+- Real terminal (IBA-gated)
+- Interactive file tree
+- AI Assistant protected by IBA
+- Live audit log
+- One-click "Declare New Human Intent"
 
-## Quick Start
-```bash
-git clone https://github.com/Grokipaedia/iba-build
-cd iba-build
-npm install
-npm run dev
+### Try it now
+1. Open the live demo above
+2. Click **"Declare New Human Intent"**
+3. Type something like: `Refactor code safely. Never delete files.`
+4. Use the editor, terminal, or AI chat — everything is now governed
+
+### Patent & Standards
+Intent-Bound Authorization (IBA)  
+Patent GB2603013.0 (Pending)  
+IETF draft-williams-intent-token-00
+
+Built as a public demonstration of IBA governance for agentic coding tools.
+
+---
+
+Made with IBA (Intent-Bound Authorization) — the security layer for autonomous agents.
