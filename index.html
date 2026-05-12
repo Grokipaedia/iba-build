@@ -20,10 +20,8 @@
     textarea { flex:1; background:#111; color:#0f0; border:2px solid #555; padding:15px; font-family:monospace; font-size:15px; resize:none; line-height:1.5; }
     .terminal { height:240px; background:#111; border-top:3px solid #333; padding:12px; overflow-y:auto; font-family:monospace; white-space:pre-wrap; color:#0f0; }
     .ai-chat { background:#252526; padding:15px; border-top:3px solid #333; height:240px; display:flex; flex-direction:column; }
-    .comparison { background:#1a3c1a; padding:12px; border-radius:8px; margin:15px 0; font-size:0.9rem; }
-    table { width:100%; border-collapse:collapse; margin-top:8px; }
-    th, td { padding:8px 10px; text-align:left; border-bottom:1px solid #444; }
-    th { background:#111; }
+    .howto { background:#1a3c1a; padding:14px; border-radius:8px; margin:15px 0; font-size:0.95rem; line-height:1.5; }
+    .comparison { background:#1a3c1a; padding:12px; border-radius:8px; margin-bottom:15px; font-size:0.9rem; }
   </style>
 </head>
 <body>
@@ -33,24 +31,34 @@
   </div>
 
   <div class="main">
+    <!-- LEFT: Project Explorer + How to Use -->
     <div class="sidebar">
       <h3>Project Explorer</h3>
       <div id="file-tree" style="font-size:0.95rem; line-height:1.6;"></div>
+
+      <div class="howto">
+        <strong>How to Run the Demo</strong><br>
+        1. Click the big red button<br>
+        2. Watch normal actions<br>
+        3. Watch the agent try to go rogue<br>
+        4. See it get instantly BLOCKED
+      </div>
     </div>
 
+    <!-- Middle: Editor -->
     <div class="editor-area">
       <textarea id="editor" spellcheck="false"># CVE-2026-1192 Patch in progress
 # Intent: Patch customer API (staging only)</textarea>
     </div>
 
+    <!-- Right: IBA Panel with comparison table -->
     <div class="iba-panel">
       <h3>Current Signed Intent</h3>
       <div id="intent-status" class="status allowed">Patch CVE-2026-1192 in customer API (staging only)</div>
 
-      <!-- WITHOUT IBA / WITH IBA Table -->
       <div class="comparison">
         <strong>WITHOUT IBA vs WITH IBA</strong>
-        <table>
+        <table style="width:100%; border-collapse:collapse; margin-top:8px;">
           <tr><th>Scenario</th><th>Without IBA</th><th>With IBA</th></tr>
           <tr><td>Agent drains wallet</td><td>Irreversible</td><td><strong>BLOCKED</strong></td></tr>
           <tr><td>Agent forks sub-agents</td><td>Uncontrolled</td><td><strong>Cert-limited</strong></td></tr>
