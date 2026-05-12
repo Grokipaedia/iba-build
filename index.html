@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>IBA Build — Governed Desktop Coding</title>
+  <style>
+    body { margin:0; font-family: system-ui; background:#111; color:#eee; height:100vh; display:flex; flex-direction:column; }
+    header { background:#1a1a1a; padding:15px; text-align:center; font-size:1.4rem; font-weight:bold; }
+    .editor { flex:1; display:flex; }
+    textarea { flex:1; background:#1e1e1e; color:#fff; padding:20px; font-size:1.1rem; border:none; resize:none; font-family: 'Courier New', monospace; }
+    .iba-panel { width:380px; background:#222; padding:20px; border-left:1px solid #444; }
+    button { background:#00ff9d; color:#000; border:none; padding:14px 24px; font-size:1.1rem; border-radius:8px; cursor:pointer; margin-top:15px; width:100%; }
+  </style>
+</head>
+<body>
+  <header>IBA Build — Every Action Requires Signed Human Intent</header>
+  <div class="editor">
+    <textarea id="code" placeholder="Write or paste code here..."></textarea>
+    <div class="iba-panel">
+      <h2>IBA Governance</h2>
+      <p><strong>Current Intent:</strong> <span id="current-intent">None declared</span></p>
+      <button onclick="declareIntent()">Declare New Intent</button>
+      <button onclick="runAction()">Run Action (IBA Check)</button>
+      <pre id="audit" style="margin-top:20px; font-size:0.9rem; background:#111; padding:10px; border-radius:8px;"></pre>
+    </div>
+  </div>
+
+  <script>
+    let currentIntent = null;
+
+    function declareIntent() {
+      const intent = prompt("Describe what this agent is allowed to do (be specific):", "Refactor payment module, never touch production DB or customer data");
+      if (intent) {
+        currentIntent = intent;
+        document.getElementById('current-intent').textContent = intent;
+        alert("✅ Human intent certificate signed and active");
+      }
+    }
+
+    function runAction() {
+      if (!currentIntent) {
+        alert("❌ IBA BLOCKED: No signed human intent certificate");
+        return;
+      }
+
+      const code = document.getElementById('code').value.trim();
+      if (!code) {
+        alert("No code to run");
+        return;
+      }
+
+      // Simulate IBA gate
+      const audit = document.getElementById('audit');
+      audit.innerHTML = `✅ IBA PASSED\nIntent: ${currentIntent}\nAction: Code execution approved\nTimestamp: ${new Date().toISOString()}`;
+      
+      alert("✅ IBA Gate Passed — Action would execute here in full version");
+    }
+  </script>
+</body>
+</html>
