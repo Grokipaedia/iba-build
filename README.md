@@ -1,38 +1,34 @@
 # IBA Build — Governed Desktop Coding
 
-**Every action requires signed human intent.**
+**Every single action requires signed human intent.**
 
 Live Demo: **[https://grokipaedia.github.io/iba-build/](https://grokipaedia.github.io/iba-build/)**
 
-### What is IBA Build?
-A lightweight, governed desktop coding environment that forces every action (edit, run, terminal command, AI request) through **Intent-Bound Authorization (IBA)**.
+### How to Use (30 seconds)
 
-- Human must declare signed intent first
-- IBA Governor blocks anything outside the declared scope
-- Immutable audit log of every decision
-- Works today as a single HTML file (no install)
+1. Open the live demo above
+2. Click the big green button **"🚀 Try Demo (Safe Intent)"** or **"Declare New Human Intent"**
+3. Type what the agent is allowed to do (example: "Refactor code safely. Never delete files.")
+4. Use the editor, terminal, or AI chat — everything is now governed by your intent
+5. Watch the Audit Log on the right for every action
+
+That’s it. No install. No setup.
 
 ### Features
 - Monaco-style code editor
-- Real terminal (IBA-gated)
+- IBA-protected terminal
 - Interactive file tree
-- AI Assistant protected by IBA
-- Live audit log
-- One-click "Declare New Human Intent"
+- AI Assistant that only works inside your declared intent
+- Live audit log of every decision
 
-### Try it now
-1. Open the live demo above
-2. Click **"Declare New Human Intent"**
-3. Type something like: `Refactor code safely. Never delete files.`
-4. Use the editor, terminal, or AI chat — everything is now governed
+### Why This Matters
+Most coding agents can do anything.  
+IBA Build forces them to do **only** what you explicitly authorized.
 
-### Patent & Standards
-Intent-Bound Authorization (IBA)  
-Patent GB2603013.0 (Pending)  
-IETF draft-williams-intent-token-00
+Built as a public demonstration of **Intent-Bound Authorization (IBA)**.
 
-Built as a public demonstration of IBA governance for agentic coding tools.
+Patent GB2603013.0 (Pending) • IETF draft-williams-intent-token-00
 
 ---
 
-Made with IBA (Intent-Bound Authorization) — the security layer for autonomous agents.
+Made with IBA — the security layer for autonomous agents.
