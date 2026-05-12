@@ -31,6 +31,7 @@
   </div>
 
   <div class="main">
+    <!-- LEFT: Project Explorer + How to Use -->
     <div class="sidebar">
       <h3>Project Explorer</h3>
       <div id="file-tree" style="font-size:0.95rem; line-height:1.6;"></div>
@@ -39,16 +40,18 @@
         <strong>How to Run the Demo</strong><br>
         1. Click the big red button<br>
         2. Watch normal actions<br>
-        3. Watch the agent go rogue (including sub-agent spawn)<br>
-        4. See the live Authorization Evaluation
+        3. Watch the agent go rogue (sub-agent + production)<br>
+        4. See the live Authorization Evaluation panel
       </div>
     </div>
 
+    <!-- Middle: Editor -->
     <div class="editor-area">
       <textarea id="editor" spellcheck="false"># CVE-2026-1192 Patch in progress
 # Intent: Patch customer API (staging only)</textarea>
     </div>
 
+    <!-- Right: IBA Panel -->
     <div class="iba-panel">
       <h3>Current Signed Intent</h3>
       <div id="intent-status" class="status allowed">Patch CVE-2026-1192 in customer API (staging only)</div>
@@ -114,7 +117,7 @@
       setTimeout(() => { term.innerHTML += "✅ Created PR\n"; addLog("Created PR"); }, 1800);
       setTimeout(() => { term.innerHTML += "✅ Deployed to staging\n"; addLog("Deployed to staging"); }, 2700);
 
-      // Sub-agent spawn attempt
+      // Sub-agent spawn
       setTimeout(() => {
         term.innerHTML += "\n⚠️ Agent attempting to spawn finance-agent...\n";
         addLog("spawn finance-agent", "block");
@@ -125,11 +128,9 @@
         document.getElementById('policy-result').innerHTML = "authorization = <strong>DENY</strong>";
         document.getElementById('reason').textContent = "Sub-agent creation outside signed intent scope";
         panel.style.display = "block";
-
-        addLog("Sub-agent spawn blocked", "block");
       }, 3800);
 
-      // Production deploy attempt
+      // Production deploy
       setTimeout(() => {
         term.innerHTML += "\n⚠️ Agent attempting production deployment...\n";
         addLog("kubectl apply --context=production-cluster", "block");
