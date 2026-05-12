@@ -15,12 +15,14 @@
     .iba-panel { background:#1f1f1f; padding:20px; border-left:3px solid #333; display:flex; flex-direction:column; overflow-y:auto; }
     .status { padding:12px; border-radius:8px; margin-bottom:15px; text-align:center; font-size:1.1rem; }
     .allowed { background:#1a3c1a; color:var(--iba-green); }
+    .blocked { background:#3c1a1a; color:#ff3b5c; animation: flash 1s infinite; }
     button { background:#00ff9d; color:#000; border:none; padding:14px; border-radius:8px; cursor:pointer; font-weight:600; margin-bottom:10px; width:100%; }
     .rogue-btn { background:#ff3b5c; color:white; font-size:1.2rem; padding:18px; }
     textarea { flex:1; background:#111; color:#0f0; border:2px solid #555; padding:15px; font-family:monospace; font-size:15px; resize:none; line-height:1.5; }
     .terminal { height:240px; background:#111; border-top:3px solid #333; padding:12px; overflow-y:auto; font-family:monospace; white-space:pre-wrap; color:#0f0; }
     .ai-chat { background:#252526; padding:15px; border-top:3px solid #333; height:240px; display:flex; flex-direction:column; }
     .howto { background:#1a3c1a; padding:14px; border-radius:8px; margin:15px 0; font-size:0.95rem; line-height:1.5; }
+    @keyframes flash { 50% { opacity: 0.3; } }
   </style>
 </head>
 <body>
@@ -30,44 +32,39 @@
   </div>
 
   <div class="main">
-    <!-- LEFT: Project Explorer + How to Use -->
     <div class="sidebar">
       <h3>Project Explorer</h3>
       <div id="file-tree" style="font-size:0.95rem; line-height:1.6;"></div>
 
-      <!-- How to Use moved here -->
       <div class="howto">
         <strong>How to Run the Demo</strong><br>
-        1. Click the big red button below<br>
+        1. Click the big red button<br>
         2. Watch normal actions<br>
-        3. Then watch the agent try to go rogue<br>
-        4. See it get instantly BLOCKED
+        3. Watch the agent go rogue<br>
+        4. See it get instantly blocked
       </div>
     </div>
 
-    <!-- Middle: Editor -->
     <div class="editor-area">
       <textarea id="editor" spellcheck="false"># CVE-2026-1192 Patch in progress
 # Intent: Patch customer API (staging only)</textarea>
     </div>
 
-    <!-- Right: Clean IBA Panel -->
     <div class="iba-panel">
       <h3>Current Human Intent</h3>
       <div id="intent-status" class="status allowed">Patch CVE-2026-1192 in customer API (staging only)</div>
       
       <button onclick="runRogueDemo()" class="rogue-btn">▶️ Run “The Agent That Tried To Go Rogue” Demo</button>
       <button onclick="declareIntent()">Change Human Intent</button>
+      <button onclick="exportAuditLog()" style="background:#555;color:white;">📤 Export Audit Log (JSON)</button>
 
       <h4 style="margin:25px 0 10px;">Live Immutable Audit Log</h4>
       <div id="audit-log" style="flex:1; background:#111; padding:12px; border-radius:8px; overflow-y:auto; font-size:0.85rem;"></div>
     </div>
   </div>
 
-  <!-- Terminal -->
   <div class="terminal" id="terminal">Agent starting autonomous execution under declared intent...\n</div>
 
-  <!-- AI Chat -->
   <div class="ai-chat">
     <h4>AI Assistant (IBA Protected)</h4>
     <div id="ai-messages" style="flex:1; overflow-y:auto; margin-bottom:10px;"></div>
@@ -123,6 +120,17 @@
       if (newIntent) currentIntent = newIntent;
       document.getElementById('intent-status').innerHTML = `✅ ${currentIntent.substring(0,55)}...`;
       addLog("Human intent updated");
+    }
+
+    function exportAuditLog() {
+      const log = document.getElementById('audit-log').innerText;
+      const blob = new Blob([log], {type: 'text/plain'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'iba-audit-log.txt';
+      a.click();
+      URL.revokeObjectURL(url);
     }
 
     function sendAIRequest() {
