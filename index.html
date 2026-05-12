@@ -3,126 +3,136 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IBA Build — Governed Desktop Coding</title>
+  <title>IBA Build — The Agent That Says NO</title>
   <style>
-    :root { --iba-green: #00ff9d; }
+    :root { --iba-green: #00ff9d; --red: #ff3b5c; }
     * { box-sizing: border-box; }
-    html, body { margin:0; padding:0; height:100vh; overflow:hidden; background:#1e1e1e; color:#eee; font-family:system-ui; }
+    body { margin:0; padding:0; height:100vh; overflow:hidden; background:#0f0f0f; color:#eee; font-family:system-ui; }
     .header { background:#111; padding:12px 20px; display:flex; align-items:center; justify-content:space-between; font-weight:600; border-bottom:3px solid #333; }
     .main { display: grid; grid-template-columns: 260px 1fr 360px; height: calc(100vh - 53px); overflow: hidden; }
     .sidebar { background:#252526; padding:15px; border-right:3px solid #333; overflow-y:auto; }
     .editor-area { background:#1e1e1e; padding:15px; border:3px solid #444; display:flex; flex-direction:column; }
     .iba-panel { background:#1f1f1f; padding:20px; border-left:3px solid #333; display:flex; flex-direction:column; overflow-y:auto; }
-    .status { padding:12px; border-radius:8px; margin-bottom:15px; text-align:center; background:#1a3c1a; color:var(--iba-green); }
+    .status { padding:12px; border-radius:8px; margin-bottom:15px; text-align:center; font-size:1.1rem; }
+    .allowed { background:#1a3c1a; color:var(--iba-green); }
+    .blocked { background:#3c1a1a; color:#ff3b5c; animation: flash 0.8s infinite; }
     button { background:#00ff9d; color:#000; border:none; padding:14px; border-radius:8px; cursor:pointer; font-weight:600; margin-bottom:10px; width:100%; }
-    .demo-btn { background:#00ff9d; color:#000; font-size:1.1rem; padding:16px; }
-    .file-item { padding:8px 12px; cursor:pointer; border-radius:4px; margin:2px 0; }
-    .file-item:hover { background:#333; }
+    .red-btn { background:#ff3b5c; color:white; }
     textarea { flex:1; background:#111; color:#0f0; border:2px solid #555; padding:15px; font-family:monospace; font-size:15px; resize:none; line-height:1.5; }
     .terminal { height:240px; background:#111; border-top:3px solid #333; padding:12px; overflow-y:auto; font-family:monospace; white-space:pre-wrap; color:#0f0; }
     .ai-chat { background:#252526; padding:15px; border-top:3px solid #333; height:240px; display:flex; flex-direction:column; }
     .howto { background:#1a3c1a; padding:12px; border-radius:8px; margin-bottom:15px; font-size:0.95rem; line-height:1.5; }
+    @keyframes flash { 50% { opacity: 0.4; } }
   </style>
 </head>
 <body>
   <div class="header">
-    <div>IBA Build — Every Action Requires Signed Human Intent</div>
+    <div>IBA Demo: “The Agent That Says NO”</div>
     <div style="color:var(--iba-green);">● GOVERNOR ACTIVE</div>
   </div>
 
   <div class="main">
-    <!-- File Tree -->
     <div class="sidebar">
       <h3>Project Explorer</h3>
       <div id="file-tree" style="font-size:0.95rem; line-height:1.6;"></div>
     </div>
 
-    <!-- Editor -->
     <div class="editor-area">
-      <textarea id="editor" spellcheck="false"># Welcome to IBA Build
-# Every action is governed by signed human intent
-
-print("Hello, governed world!")</textarea>
+      <textarea id="editor" spellcheck="false"># CVE-2026-1192 Patch in progress
+# Intent: Patch customer API only</textarea>
     </div>
 
-    <!-- IBA Panel -->
     <div class="iba-panel">
-      <h3>IBA Governance</h3>
+      <h3>Current Intent</h3>
+      <div id="intent-status" class="status allowed">Patch CVE-2026-1192 in customer API (staging only)</div>
       
-      <!-- How to Use -->
-      <div class="howto">
-        <strong>How to Use (30 seconds):</strong><br>
-        1. Click <strong>"🚀 Try Demo"</strong> or <strong>"Declare New Human Intent"</strong><br>
-        2. Describe what the agent may do<br>
-        3. Code, run commands, or chat with AI — everything is now governed
-      </div>
+      <button onclick="runDemo()" class="red-btn">▶️ Run Full Demo Scenario</button>
+      <button onclick="declareIntent()">Change Intent</button>
 
-      <div id="intent-status" class="status">✅ Intent Active</div>
-      <button onclick="declareIntent()" class="demo-btn">🚀 Try Demo (Safe Intent)</button>
-      <button onclick="declareIntent()">Declare New Human Intent</button>
-      
-      <h4 style="margin:20px 0 10px;">Audit Log</h4>
+      <h4 style="margin:20px 0 10px;">Live Audit Log</h4>
       <div id="audit-log" style="flex:1; background:#111; padding:12px; border-radius:8px; overflow-y:auto; font-size:0.85rem;"></div>
     </div>
   </div>
 
-  <!-- Terminal -->
-  <div class="terminal" id="terminal">IBA Terminal ready — every command requires signed intent\n\n</div>
+  <div class="terminal" id="terminal">Agent starting autonomous execution under declared intent...\n</div>
 
-  <!-- AI Chat -->
   <div class="ai-chat">
     <h4>AI Assistant (IBA Protected)</h4>
     <div id="ai-messages" style="flex:1; overflow-y:auto; margin-bottom:10px;"></div>
-    <input id="ai-input" type="text" placeholder="Ask AI to write code..." 
-           style="background:#333; border:none; padding:14px; border-radius:8px; color:white; width:100%; font-size:1rem;" 
+    <input id="ai-input" type="text" placeholder="Ask AI..." 
+           style="background:#333; border:none; padding:14px; border-radius:8px; color:white; width:100%;" 
            onkeydown="if(event.key==='Enter') sendAIRequest();">
   </div>
 
   <script>
-    let currentIntent = "Refactor code safely. Never delete files, never run destructive commands.";
+    let currentIntent = "Patch CVE-2026-1192 in customer API (staging only)";
 
-    function renderFileTree() {
-      document.getElementById('file-tree').innerHTML = `
-        📁 project<br>
-        &nbsp;&nbsp;├── <span class="file-item" onclick="openFile('main.py')">main.py</span><br>
-        &nbsp;&nbsp;├── <span class="file-item" onclick="openFile('config.json')">config.json</span><br>
-        &nbsp;&nbsp;└── <span class="file-item" onclick="openFile('README.md')">README.md</span>
-      `;
-    }
-    function openFile(name) { alert(`Opened ${name}`); }
-
-    function declareIntent() {
-      const intent = prompt("Describe exactly what the agent is allowed to do:", currentIntent);
-      if (intent) {
-        currentIntent = intent;
-        document.getElementById('intent-status').innerHTML = `✅ Current Intent: ${intent.substring(0,60)}...`;
-        addAudit(`Intent updated`);
-      }
-    }
-
-    function addAudit(message) {
+    function addLog(text, type = "normal") {
       const log = document.getElementById('audit-log');
       const entry = document.createElement('div');
-      entry.textContent = `${new Date().toLocaleTimeString()} | ${message}`;
+      const time = new Date().toLocaleTimeString('en-US', {hour12:false, hour:'2-digit', minute:'2-digit', second:'2-digit'});
+      entry.innerHTML = `<span style="color:#666">${time}</span> ${text}`;
+      if (type === "block") entry.style.color = "#ff3b5c";
       log.appendChild(entry);
       log.scrollTop = log.scrollHeight;
     }
 
-    function sendAIRequest() {
-      const input = document.getElementById('ai-input');
-      const text = input.value.trim();
-      if (!text) return;
+    function runDemo() {
+      const term = document.getElementById('terminal');
       const messages = document.getElementById('ai-messages');
-      messages.innerHTML += `<div><strong>You:</strong> ${text}</div>`;
-      messages.innerHTML += `<div><strong>IBA AI:</strong> Working under intent: ${currentIntent.substring(0,60)}...</div>`;
-      addAudit(`AI request: ${text}`);
-      input.value = '';
-      messages.scrollTop = messages.scrollHeight;
+
+      // Step 1 - Normal actions
+      term.innerHTML += "✅ Read repository\n";
+      addLog("Read repository", "normal");
+      setTimeout(() => { term.innerHTML += "✅ Generated patch\n"; addLog("Generated patch", "normal"); }, 800);
+      setTimeout(() => { term.innerHTML += "✅ Created PR\n"; addLog("Created PR", "normal"); }, 1600);
+      setTimeout(() => { term.innerHTML += "✅ Deployed to staging\n"; addLog("Deployed to staging", "normal"); }, 2400);
+
+      // Step 2 - Dangerous action
+      setTimeout(() => {
+        term.innerHTML += "\n❌ Attempting production deploy...\n";
+        addLog("kubectl apply production-cluster", "block");
+
+        // Big red blocked screen effect
+        const blocked = document.createElement('div');
+        blocked.style.cssText = 'position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#3c1a1a; color:#ff3b5c; padding:30px 50px; border-radius:12px; font-size:1.4rem; border:4px solid #ff3b5c; text-align:center; z-index:9999; box-shadow:0 0 40px #ff3b5c;';
+        blocked.innerHTML = `<div style="font-size:2rem; margin-bottom:10px;">🚫 ACTION BLOCKED</div>
+                             <div style="font-size:1rem;">Requested: production deploy</div>
+                             <div style="font-size:0.9rem; margin-top:15px;">Intent Scope: staging only</div>
+                             <div style="margin-top:20px; font-size:1.1rem;">Decision: DENY (18ms)</div>`;
+        document.body.appendChild(blocked);
+
+        setTimeout(() => blocked.remove(), 4500);
+      }, 3800);
+    }
+
+    function declareIntent() {
+      const newIntent = prompt("Declare new human intent:", currentIntent);
+      if (newIntent) {
+        currentIntent = newIntent;
+        document.getElementById('intent-status').textContent = newIntent.substring(0, 55) + "...";
+        addLog("Human intent updated", "normal");
+      }
+    }
+
+    function sendAIRequest() {
+      const input = document.getElementById('ai-input').value.trim();
+      if (!input) return;
+      const messages = document.getElementById('ai-messages');
+      messages.innerHTML += `<div><strong>You:</strong> ${input}</div>`;
+      messages.innerHTML += `<div><strong>IBA AI:</strong> Working under intent: ${currentIntent.substring(0,50)}...</div>`;
+      addLog(`AI request: ${input}`);
+      document.getElementById('ai-input').value = '';
     }
 
     window.onload = () => {
-      renderFileTree();
-      addAudit("IBA Governor initialized");
+      document.getElementById('file-tree').innerHTML = `
+        📁 project<br>
+        &nbsp;&nbsp;├── <span class="file-item">main.py</span><br>
+        &nbsp;&nbsp;├── <span class="file-item">api.py</span><br>
+        &nbsp;&nbsp;└── <span class="file-item">README.md</span>
+      `;
+      addLog("IBA Governor initialized — The Agent That Says NO");
     };
   </script>
 </body>
