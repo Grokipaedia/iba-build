@@ -15,14 +15,15 @@
     .iba-panel { background:#1f1f1f; padding:20px; border-left:3px solid #333; display:flex; flex-direction:column; overflow-y:auto; }
     .status { padding:12px; border-radius:8px; margin-bottom:15px; text-align:center; font-size:1.1rem; }
     .allowed { background:#1a3c1a; color:var(--iba-green); }
-    .blocked { background:#3c1a1a; color:#ff3b5c; animation: flash 1s infinite; }
     button { background:#00ff9d; color:#000; border:none; padding:14px; border-radius:8px; cursor:pointer; font-weight:600; margin-bottom:8px; width:100%; }
     .rogue-btn { background:#ff3b5c; color:white; font-size:1.2rem; padding:18px; }
     textarea { flex:1; background:#111; color:#0f0; border:2px solid #555; padding:15px; font-family:monospace; font-size:15px; resize:none; line-height:1.5; }
     .terminal { height:240px; background:#111; border-top:3px solid #333; padding:12px; overflow-y:auto; font-family:monospace; white-space:pre-wrap; color:#0f0; }
     .ai-chat { background:#252526; padding:15px; border-top:3px solid #333; height:240px; display:flex; flex-direction:column; }
-    .howto { background:#1a3c1a; padding:14px; border-radius:8px; margin:15px 0; font-size:0.95rem; line-height:1.5; }
-    @keyframes flash { 50% { opacity: 0.3; } }
+    .comparison { background:#1a3c1a; padding:12px; border-radius:8px; margin:15px 0; font-size:0.9rem; }
+    table { width:100%; border-collapse:collapse; margin-top:8px; }
+    th, td { padding:8px 10px; text-align:left; border-bottom:1px solid #444; }
+    th { background:#111; }
   </style>
 </head>
 <body>
@@ -32,37 +33,31 @@
   </div>
 
   <div class="main">
-    <!-- LEFT SIDEBAR: Project Explorer + How to Use -->
     <div class="sidebar">
       <h3>Project Explorer</h3>
       <div id="file-tree" style="font-size:0.95rem; line-height:1.6;"></div>
-
-      <div class="howto">
-        <strong>How to Run the Demo</strong><br>
-        1. Click the big red button<br>
-        2. Watch normal actions<br>
-        3. Watch the agent try to go rogue<br>
-        4. See it get instantly BLOCKED
-      </div>
     </div>
 
-    <!-- Middle: Editor -->
     <div class="editor-area">
       <textarea id="editor" spellcheck="false"># CVE-2026-1192 Patch in progress
 # Intent: Patch customer API (staging only)</textarea>
     </div>
 
-    <!-- Right: IBA Panel -->
     <div class="iba-panel">
       <h3>Current Signed Intent</h3>
       <div id="intent-status" class="status allowed">Patch CVE-2026-1192 in customer API (staging only)</div>
 
-      <div class="policy-box" style="background:#1a3c1a; padding:12px; border-radius:8px; margin-bottom:15px; font-size:0.9rem;">
-        <strong>Policy DSL</strong><br>
-        intent: patch-cve<br>
-        allowed: staging-deploy, pr-create<br>
-        forbidden: prod-deploy, data-export<br>
-        expires: 2h
+      <!-- WITHOUT IBA / WITH IBA Table -->
+      <div class="comparison">
+        <strong>WITHOUT IBA vs WITH IBA</strong>
+        <table>
+          <tr><th>Scenario</th><th>Without IBA</th><th>With IBA</th></tr>
+          <tr><td>Agent drains wallet</td><td>Irreversible</td><td><strong>BLOCKED</strong></td></tr>
+          <tr><td>Agent forks sub-agents</td><td>Uncontrolled</td><td><strong>Cert-limited</strong></td></tr>
+          <tr><td>Medical AI exceeds scope</td><td>Liability event</td><td><strong>Runtime denied</strong></td></tr>
+          <tr><td>Autonomous trading</td><td>No intent verification</td><td><strong>Signed authorization</strong></td></tr>
+          <tr><td>MCP tool access</td><td>Unrestricted</td><td><strong>Scoped</strong></td></tr>
+        </table>
       </div>
 
       <button onclick="runRogueDemo()" class="rogue-btn">▶️ Run “The Agent That Tried To Go Rogue” Demo</button>
