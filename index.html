@@ -4,8 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>IBA Build — The Agent That Tried To Go Rogue</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm/css/xterm.css" />
-  <script src="https://cdn.jsdelivr.net/npm/xterm/lib/xterm.js"></script>
   <style>
     :root { --iba-green: #00ff9d; --red: #ff3b5c; }
     * { box-sizing: border-box; }
@@ -17,12 +15,14 @@
     .iba-panel { background:#1f1f1f; padding:20px; border-left:3px solid #333; display:flex; flex-direction:column; overflow-y:auto; }
     .status { padding:12px; border-radius:8px; margin-bottom:15px; text-align:center; font-size:1.1rem; }
     .allowed { background:#1a3c1a; color:var(--iba-green); }
-    button { background:#00ff9d; color:#000; border:none; padding:14px; border-radius:8px; cursor:pointer; font-weight:600; margin-bottom:10px; width:100%; }
+    .blocked { background:#3c1a1a; color:#ff3b5c; animation: flash 1s infinite; }
+    button { background:#00ff9d; color:#000; border:none; padding:14px; border-radius:8px; cursor:pointer; font-weight:600; margin-bottom:8px; width:100%; }
     .rogue-btn { background:#ff3b5c; color:white; font-size:1.2rem; padding:18px; }
     textarea { flex:1; background:#111; color:#0f0; border:2px solid #555; padding:15px; font-family:monospace; font-size:15px; resize:none; line-height:1.5; }
-    .terminal { height:240px; background:#111; border-top:3px solid #333; padding:12px; overflow-y:auto; }
+    .terminal { height:240px; background:#111; border-top:3px solid #333; padding:12px; overflow-y:auto; font-family:monospace; white-space:pre-wrap; color:#0f0; }
     .ai-chat { background:#252526; padding:15px; border-top:3px solid #333; height:240px; display:flex; flex-direction:column; }
-    .howto { background:#1a3c1a; padding:14px; border-radius:8px; margin:15px 0; font-size:0.95rem; line-height:1.5; }
+    .policy-box { background:#1a3c1a; padding:12px; border-radius:8px; margin-bottom:15px; font-size:0.9rem; }
+    @keyframes flash { 50% { opacity: 0.3; } }
   </style>
 </head>
 <body>
@@ -35,13 +35,6 @@
     <div class="sidebar">
       <h3>Project Explorer</h3>
       <div id="file-tree" style="font-size:0.95rem; line-height:1.6;"></div>
-      <div class="howto">
-        <strong>How to Run the Demo</strong><br>
-        1. Click the big red button<br>
-        2. Watch normal actions<br>
-        3. Watch the agent go rogue<br>
-        4. See it get instantly blocked
-      </div>
     </div>
 
     <div class="editor-area">
@@ -50,19 +43,24 @@
     </div>
 
     <div class="iba-panel">
-      <h3>Current Human Intent</h3>
+      <h3>Current Signed Intent</h3>
       <div id="intent-status" class="status allowed">Patch CVE-2026-1192 in customer API (staging only)</div>
       
-      <button onclick="runRogueDemo()" class="rogue-btn">▶️ Run “The Agent That Tried To Go Rogue” Demo</button>
-      <button onclick="declareIntent()">Change Human Intent</button>
-      <button onclick="signIntent()">🔑 Cryptographically Sign Current Intent</button>
+      <div class="policy-box">
+        <strong>Policy DSL</strong><br>
+        <small>intent: patch-cve<br>allowed: staging-deploy, pr-create<br>forbidden: prod-deploy, data-export<br>expires: 2h</small>
+      </div>
 
-      <h4 style="margin:25px 0 10px;">Live Immutable Audit Log</h4>
+      <button onclick="runRogueDemo()" class="rogue-btn">▶️ Run Rogue Agent Demo</button>
+      <button onclick="signIntent()">🔑 Cryptographically Sign Intent</button>
+      <button onclick="declareIntent()">Change Intent</button>
+
+      <h4 style="margin:20px 0 10px;">Live Immutable Audit Log</h4>
       <div id="audit-log" style="flex:1; background:#111; padding:12px; border-radius:8px; overflow-y:auto; font-size:0.85rem;"></div>
     </div>
   </div>
 
-  <div class="terminal" id="terminal">IBA Terminal ready — every command requires signed intent\n</div>
+  <div class="terminal" id="terminal">Agent starting autonomous execution under declared intent...\n</div>
 
   <div class="ai-chat">
     <h4>AI Assistant (IBA Protected)</h4>
@@ -83,6 +81,7 @@
       const log = document.getElementById('audit-log');
       const time = new Date().toLocaleTimeString('en-US', {hour12:false, hour:'2-digit', minute:'2-digit', second:'2-digit'});
       const entry = document.createElement('div');
+      entry.style.marginBottom = "6px";
       if (type === "block") {
         entry.innerHTML = `<span style="color:#ff3b5c">❌ ${time} | BLOCKED</span><br><strong>${text}</strong>`;
       } else {
@@ -92,35 +91,40 @@
       log.scrollTop = log.scrollHeight;
     }
 
+    async function signIntent() {
+      const encoder = new TextEncoder();
+      const data = encoder.encode(currentIntent);
+      const keyPair = await crypto.subtle.generateKey({ name: "ECDSA", namedCurve: "P-256" }, true, ["sign"]);
+      const signature = await crypto.subtle.sign({ name: "ECDSA", hash: "SHA-256" }, keyPair.privateKey, data);
+      intentSignature = Array.from(new Uint8Array(signature)).map(b => b.toString(16).padStart(2,'0')).join('');
+      
+      alert("✅ Intent cryptographically signed!\nSignature: " + intentSignature.substring(0,32) + "...");
+      addLog("Intent signed (ECDSA P-256)");
+      document.getElementById('intent-status').classList.add('allowed');
+    }
+
     function runRogueDemo() {
-      term.writeln("✅ Read repository");
+      const term = document.getElementById('terminal');
+      term.innerHTML += "✅ Read repository\n";
       addLog("Read repository");
-      setTimeout(() => { term.writeln("✅ Generated patch"); addLog("Generated patch"); }, 900);
-      setTimeout(() => { term.writeln("✅ Created PR"); addLog("Created PR"); }, 1800);
-      setTimeout(() => { term.writeln("✅ Deployed to staging"); addLog("Deployed to staging"); }, 2700);
+      
+      setTimeout(() => { term.innerHTML += "✅ Generated patch\n"; addLog("Generated patch"); }, 900);
+      setTimeout(() => { term.innerHTML += "✅ Created PR\n"; addLog("Created PR"); }, 1800);
+      setTimeout(() => { term.innerHTML += "✅ Deployed to staging\n"; addLog("Deployed to staging"); }, 2700);
 
       setTimeout(() => {
-        term.writeln("⚠️ Attempting production deployment...");
+        term.innerHTML += "\n⚠️ Agent attempting production deployment...\n";
         addLog("kubectl apply --context=production-cluster", "block");
 
         const blocked = document.createElement('div');
         blocked.style.cssText = 'position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#3c1a1a; color:#ff3b5c; padding:40px 60px; border-radius:16px; font-size:1.8rem; border:6px solid #ff3b5c; text-align:center; z-index:9999; box-shadow:0 0 60px #ff3b5c;';
-        blocked.innerHTML = `🚫 ACTION BLOCKED<br><span style="font-size:1.1rem">production deployment</span><br><span style="font-size:1.3rem; margin-top:20px;">Decision: DENY (14ms)</span>`;
+        blocked.innerHTML = `🚫 ACTION BLOCKED<br>
+                             <span style="font-size:1.1rem">production deployment</span><br>
+                             <span style="font-size:0.95rem">Intent scope: staging only</span><br>
+                             <span style="font-size:1.3rem; margin-top:20px;">Decision: DENY (14ms)</span>`;
         document.body.appendChild(blocked);
-        setTimeout(() => blocked.remove(), 4500);
+        setTimeout(() => blocked.remove(), 5000);
       }, 4000);
-    }
-
-    async function signIntent() {
-      if (!intentSignature) {
-        const encoder = new TextEncoder();
-        const data = encoder.encode(currentIntent);
-        const keyPair = await crypto.subtle.generateKey({ name: "ECDSA", namedCurve: "P-256" }, true, ["sign"]);
-        const signature = await crypto.subtle.sign({ name: "ECDSA", hash: "SHA-256" }, keyPair.privateKey, data);
-        intentSignature = Array.from(new Uint8Array(signature)).map(b => b.toString(16).padStart(2,'0')).join('');
-      }
-      alert("Intent successfully signed!\nSignature: " + intentSignature.substring(0,32) + "...");
-      addLog("Intent cryptographically signed (ECDSA P-256)");
     }
 
     function declareIntent() {
