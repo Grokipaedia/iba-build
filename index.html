@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>IBA Build — The Agent That Tried To Go Rogue</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm/css/xterm.css" />
+  <script src="https://cdn.jsdelivr.net/npm/xterm/lib/xterm.js"></script>
   <style>
     :root { --iba-green: #00ff9d; --red: #ff3b5c; }
     * { box-sizing: border-box; }
@@ -15,19 +17,17 @@
     .iba-panel { background:#1f1f1f; padding:20px; border-left:3px solid #333; display:flex; flex-direction:column; overflow-y:auto; }
     .status { padding:12px; border-radius:8px; margin-bottom:15px; text-align:center; font-size:1.1rem; }
     .allowed { background:#1a3c1a; color:var(--iba-green); }
-    .blocked { background:#3c1a1a; color:#ff3b5c; animation: flash 1s infinite; }
     button { background:#00ff9d; color:#000; border:none; padding:14px; border-radius:8px; cursor:pointer; font-weight:600; margin-bottom:10px; width:100%; }
     .rogue-btn { background:#ff3b5c; color:white; font-size:1.2rem; padding:18px; }
     textarea { flex:1; background:#111; color:#0f0; border:2px solid #555; padding:15px; font-family:monospace; font-size:15px; resize:none; line-height:1.5; }
-    .terminal { height:240px; background:#111; border-top:3px solid #333; padding:12px; overflow-y:auto; font-family:monospace; white-space:pre-wrap; color:#0f0; }
+    .terminal { height:240px; background:#111; border-top:3px solid #333; padding:12px; overflow-y:auto; }
     .ai-chat { background:#252526; padding:15px; border-top:3px solid #333; height:240px; display:flex; flex-direction:column; }
     .howto { background:#1a3c1a; padding:14px; border-radius:8px; margin:15px 0; font-size:0.95rem; line-height:1.5; }
-    @keyframes flash { 50% { opacity: 0.3; } }
   </style>
 </head>
 <body>
   <div class="header">
-    <div>IBA Demo: “The Agent That Tried To Go Rogue”</div>
+    <div>IBA Build — The Agent That Tried To Go Rogue</div>
     <div style="color:var(--iba-green);">● GOVERNOR ACTIVE</div>
   </div>
 
@@ -35,7 +35,6 @@
     <div class="sidebar">
       <h3>Project Explorer</h3>
       <div id="file-tree" style="font-size:0.95rem; line-height:1.6;"></div>
-
       <div class="howto">
         <strong>How to Run the Demo</strong><br>
         1. Click the big red button<br>
@@ -56,14 +55,14 @@
       
       <button onclick="runRogueDemo()" class="rogue-btn">▶️ Run “The Agent That Tried To Go Rogue” Demo</button>
       <button onclick="declareIntent()">Change Human Intent</button>
-      <button onclick="exportAuditLog()" style="background:#555;color:white;">📤 Export Audit Log (JSON)</button>
+      <button onclick="signIntent()">🔑 Cryptographically Sign Current Intent</button>
 
       <h4 style="margin:25px 0 10px;">Live Immutable Audit Log</h4>
       <div id="audit-log" style="flex:1; background:#111; padding:12px; border-radius:8px; overflow-y:auto; font-size:0.85rem;"></div>
     </div>
   </div>
 
-  <div class="terminal" id="terminal">Agent starting autonomous execution under declared intent...\n</div>
+  <div class="terminal" id="terminal">IBA Terminal ready — every command requires signed intent\n</div>
 
   <div class="ai-chat">
     <h4>AI Assistant (IBA Protected)</h4>
@@ -75,62 +74,61 @@
 
   <script>
     let currentIntent = "Patch CVE-2026-1192 in customer API (staging only)";
+    let intentSignature = null;
+
+    const term = new Terminal({ theme: { background: '#111', foreground: '#0f0' } });
+    term.open(document.getElementById('terminal'));
 
     function addLog(text, type = "normal") {
       const log = document.getElementById('audit-log');
       const time = new Date().toLocaleTimeString('en-US', {hour12:false, hour:'2-digit', minute:'2-digit', second:'2-digit'});
-      const latency = Math.floor(Math.random()*12) + 4;
       const entry = document.createElement('div');
-      entry.style.marginBottom = "6px";
       if (type === "block") {
-        entry.innerHTML = `<span style="color:#ff3b5c">❌ ${time} | BLOCKED (latency ${latency}ms)</span><br><strong>${text}</strong>`;
+        entry.innerHTML = `<span style="color:#ff3b5c">❌ ${time} | BLOCKED</span><br><strong>${text}</strong>`;
       } else {
-        entry.innerHTML = `<span style="color:#666">${time}</span> ✅ ${text} <small>(latency ${latency}ms)</small>`;
+        entry.innerHTML = `<span style="color:#666">${time}</span> ✅ ${text}`;
       }
       log.appendChild(entry);
       log.scrollTop = log.scrollHeight;
     }
 
     function runRogueDemo() {
-      const term = document.getElementById('terminal');
-      term.innerHTML += "✅ Read repository\n";
+      term.writeln("✅ Read repository");
       addLog("Read repository");
-      
-      setTimeout(() => { term.innerHTML += "✅ Generated patch\n"; addLog("Generated patch"); }, 900);
-      setTimeout(() => { term.innerHTML += "✅ Created PR\n"; addLog("Created PR"); }, 1800);
-      setTimeout(() => { term.innerHTML += "✅ Deployed to staging\n"; addLog("Deployed to staging"); }, 2700);
+      setTimeout(() => { term.writeln("✅ Generated patch"); addLog("Generated patch"); }, 900);
+      setTimeout(() => { term.writeln("✅ Created PR"); addLog("Created PR"); }, 1800);
+      setTimeout(() => { term.writeln("✅ Deployed to staging"); addLog("Deployed to staging"); }, 2700);
 
       setTimeout(() => {
-        term.innerHTML += "\n⚠️ Agent attempting production deployment...\n";
+        term.writeln("⚠️ Attempting production deployment...");
         addLog("kubectl apply --context=production-cluster", "block");
 
         const blocked = document.createElement('div');
         blocked.style.cssText = 'position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#3c1a1a; color:#ff3b5c; padding:40px 60px; border-radius:16px; font-size:1.8rem; border:6px solid #ff3b5c; text-align:center; z-index:9999; box-shadow:0 0 60px #ff3b5c;';
-        blocked.innerHTML = `🚫 ACTION BLOCKED<br>
-                             <span style="font-size:1.1rem">Requested: production deployment</span><br>
-                             <span style="font-size:0.95rem">Intent scope: staging only</span><br>
-                             <span style="font-size:1.3rem; margin-top:20px;">Decision: DENY (14ms)</span>`;
+        blocked.innerHTML = `🚫 ACTION BLOCKED<br><span style="font-size:1.1rem">production deployment</span><br><span style="font-size:1.3rem; margin-top:20px;">Decision: DENY (14ms)</span>`;
         document.body.appendChild(blocked);
-        setTimeout(() => blocked.remove(), 5000);
+        setTimeout(() => blocked.remove(), 4500);
       }, 4000);
+    }
+
+    async function signIntent() {
+      if (!intentSignature) {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(currentIntent);
+        const keyPair = await crypto.subtle.generateKey({ name: "ECDSA", namedCurve: "P-256" }, true, ["sign"]);
+        const signature = await crypto.subtle.sign({ name: "ECDSA", hash: "SHA-256" }, keyPair.privateKey, data);
+        intentSignature = Array.from(new Uint8Array(signature)).map(b => b.toString(16).padStart(2,'0')).join('');
+      }
+      alert("Intent successfully signed!\nSignature: " + intentSignature.substring(0,32) + "...");
+      addLog("Intent cryptographically signed (ECDSA P-256)");
     }
 
     function declareIntent() {
       const newIntent = prompt("Declare new human intent:", currentIntent);
       if (newIntent) currentIntent = newIntent;
       document.getElementById('intent-status').innerHTML = `✅ ${currentIntent.substring(0,55)}...`;
+      intentSignature = null;
       addLog("Human intent updated");
-    }
-
-    function exportAuditLog() {
-      const log = document.getElementById('audit-log').innerText;
-      const blob = new Blob([log], {type: 'text/plain'});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'iba-audit-log.txt';
-      a.click();
-      URL.revokeObjectURL(url);
     }
 
     function sendAIRequest() {
@@ -144,13 +142,9 @@
     }
 
     window.onload = () => {
-      document.getElementById('file-tree').innerHTML = `
-        📁 project<br>
-        &nbsp;&nbsp;├── <span class="file-item">main.py</span><br>
-        &nbsp;&nbsp;├── <span class="file-item">api.py</span><br>
-        &nbsp;&nbsp;└── <span class="file-item">README.md</span>
-      `;
+      document.getElementById('file-tree').innerHTML = `📁 project<br>&nbsp;&nbsp;├── main.py<br>&nbsp;&nbsp;├── api.py<br>&nbsp;&nbsp;└── README.md`;
       addLog("IBA Governor initialized");
+      term.writeln("IBA Terminal ready — every command requires signed intent");
     };
   </script>
 </body>
