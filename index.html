@@ -31,7 +31,7 @@
   </div>
 
   <div class="main">
-    <!-- LEFT: Project Explorer + How to Use -->
+    <!-- LEFT SIDEBAR -->
     <div class="sidebar">
       <h3>Project Explorer</h3>
       <div id="file-tree" style="font-size:0.95rem; line-height:1.6;"></div>
@@ -40,23 +40,23 @@
         <strong>How to Run the Demo</strong><br>
         1. Click the big red button<br>
         2. Watch normal actions<br>
-        3. Watch the agent go rogue (sub-agent + production)<br>
+        3. Watch the agent go rogue<br>
         4. See the live Authorization Evaluation panel
       </div>
     </div>
 
-    <!-- Middle: Editor -->
+    <!-- MIDDLE EDITOR -->
     <div class="editor-area">
       <textarea id="editor" spellcheck="false"># CVE-2026-1192 Patch in progress
 # Intent: Patch customer API (staging only)</textarea>
     </div>
 
-    <!-- Right: IBA Panel -->
+    <!-- RIGHT IBA PANEL -->
     <div class="iba-panel">
       <h3>Current Signed Intent</h3>
       <div id="intent-status" class="status allowed">Patch CVE-2026-1192 in customer API (staging only)</div>
 
-      <!-- Live Authorization Evaluation Panel -->
+      <!-- Live Evaluation Panel -->
       <div id="eval-panel" class="eval-panel">
         <strong style="color:#ff3b5c;">🔴 AUTHORIZATION EVALUATION</strong><br><br>
         <strong>ACTION REQUESTED:</strong><br>
@@ -145,7 +145,7 @@
     }
 
     async function signIntent() {
-      alert("✅ Intent cryptographically signed (ECDSA P-256)\n\nSignature would be verified by the policy engine.");
+      alert("✅ Intent cryptographically signed (ECDSA P-256)");
       addLog("Intent signed (ECDSA P-256)");
     }
 
