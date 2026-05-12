@@ -2,59 +2,114 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>IBA Build — Governed Desktop Coding</title>
+  <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs/loader.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm/css/xterm.css" />
   <style>
-    body { margin:0; font-family: system-ui; background:#111; color:#eee; height:100vh; display:flex; flex-direction:column; }
-    header { background:#1a1a1a; padding:15px; text-align:center; font-size:1.4rem; font-weight:bold; }
-    .editor { flex:1; display:flex; }
-    textarea { flex:1; background:#1e1e1e; color:#fff; padding:20px; font-size:1.1rem; border:none; resize:none; font-family: 'Courier New', monospace; }
-    .iba-panel { width:380px; background:#222; padding:20px; border-left:1px solid #444; }
-    button { background:#00ff9d; color:#000; border:none; padding:14px 24px; font-size:1.1rem; border-radius:8px; cursor:pointer; margin-top:15px; width:100%; }
+    :root { --iba-green: #00ff9d; }
+    body { margin:0; padding:0; overflow:hidden; background:#1e1e1e; color:#eee; font-family:system-ui; height:100vh; display:flex; flex-direction:column; }
+    .header { background:#111; padding:12px 20px; display:flex; align-items:center; justify-content:space-between; font-weight:600; border-bottom:1px solid #333; }
+    .main { flex:1; display:flex; overflow:hidden; }
+    .sidebar { width:260px; background:#252526; padding:15px; border-right:1px solid #333; overflow-y:auto; }
+    .editor-area { flex:1; display:flex; flex-direction:column; }
+    .iba-panel { width:360px; background:#1f1f1f; border-left:1px solid #333; padding:20px; display:flex; flex-direction:column; }
+    .status { padding:10px 14px; border-radius:8px; margin-bottom:15px; font-size:0.95rem; }
+    .allowed { background:#1a3c1a; color:var(--iba-green); }
+    .blocked { background:#3c1a1a; color:#ff6b6b; }
+    button { background:#00ff9d; color:#000; border:none; padding:14px; border-radius:8px; cursor:pointer; margin-bottom:10px; width:100%; font-weight:600; }
   </style>
 </head>
 <body>
-  <header>IBA Build — Every Action Requires Signed Human Intent</header>
-  <div class="editor">
-    <textarea id="code" placeholder="Write or paste code here..."></textarea>
+  <div class="header">
+    <div>IBA Build — Every Action Requires Signed Human Intent</div>
+    <div style="color:var(--iba-green); font-size:0.95rem;">● IBA GOVERNOR ACTIVE</div>
+  </div>
+
+  <div class="main">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <h3>Project Explorer</h3>
+      <div style="background:#333; padding:12px; border-radius:8px; font-size:0.9rem; line-height:1.5;">
+        📁 project<br>
+        &nbsp;&nbsp;├── main.py<br>
+        &nbsp;&nbsp;├── config.json<br>
+        &nbsp;&nbsp;└── README.md
+      </div>
+      <button onclick="saveAll()">💾 Save All (IBA Protected)</button>
+    </div>
+
+    <!-- Editor -->
+    <div class="editor-area" id="editor-container"></div>
+
+    <!-- IBA Governance Panel -->
     <div class="iba-panel">
-      <h2>IBA Governance</h2>
-      <p><strong>Current Intent:</strong> <span id="current-intent">None declared</span></p>
-      <button onclick="declareIntent()">Declare New Intent</button>
-      <button onclick="runAction()">Run Action (IBA Check)</button>
-      <pre id="audit" style="margin-top:20px; font-size:0.9rem; background:#111; padding:10px; border-radius:8px;"></pre>
+      <h3>IBA Governance</h3>
+      <div id="intent-status" class="status allowed">✅ Intent Active</div>
+      <button onclick="declareIntent()">Declare New Human Intent</button>
+      
+      <h4 style="margin:20px 0 10px 0;">Audit Log</h4>
+      <div id="audit-log" style="flex:1; background:#111; padding:12px; border-radius:8px; font-size:0.85rem; overflow-y:auto; line-height:1.5;"></div>
+
+      <button onclick="runAction()" style="margin-top:20px;">▶ Run Action (IBA Enforced)</button>
     </div>
   </div>
 
   <script>
-    let currentIntent = null;
+    let editor;
+    let currentIntent = "Refactor payment module, never touch production data, customer records, or run destructive commands";
+
+    // Monaco Editor
+    require.config({ paths: { 'vs': 'https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs' }});
+    require(['vs/editor/editor.main'], function() {
+      editor = monaco.editor.create(document.getElementById('editor-container'), {
+        value: '# Welcome to IBA Build\n# Every action is governed by signed human intent\nprint("Hello, governed world!")',
+        language: 'python',
+        theme: 'vs-dark',
+        fontSize: 15,
+        minimap: { enabled: false }
+      });
+    });
 
     function declareIntent() {
-      const intent = prompt("Describe what this agent is allowed to do (be specific):", "Refactor payment module, never touch production DB or customer data");
+      const intent = prompt("Describe exactly what the agent is allowed to do in this session:", currentIntent);
       if (intent) {
         currentIntent = intent;
-        document.getElementById('current-intent').textContent = intent;
-        alert("✅ Human intent certificate signed and active");
+        document.getElementById('intent-status').innerHTML = `✅ Current Intent: ${intent.substring(0,60)}...`;
+        addAudit(`Intent updated → ${intent}`);
       }
     }
 
     function runAction() {
       if (!currentIntent) {
+        alert("❌ IBA BLOCKED: No signed human intent certificate declared");
+        return;
+      }
+      addAudit(`✅ IBA PASSED — Action executed under intent: ${currentIntent}`);
+      alert("✅ Action approved and would execute here in the full version.");
+    }
+
+    function saveAll() {
+      if (!currentIntent) {
         alert("❌ IBA BLOCKED: No signed human intent certificate");
         return;
       }
-
-      const code = document.getElementById('code').value.trim();
-      if (!code) {
-        alert("No code to run");
-        return;
-      }
-
-      // Simulate IBA gate
-      const audit = document.getElementById('audit');
-      audit.innerHTML = `✅ IBA PASSED\nIntent: ${currentIntent}\nAction: Code execution approved\nTimestamp: ${new Date().toISOString()}`;
-      
-      alert("✅ IBA Gate Passed — Action would execute here in full version");
+      addAudit(`✅ All files saved under intent: ${currentIntent}`);
+      alert("✅ All files saved (IBA protected)");
     }
+
+    function addAudit(message) {
+      const log = document.getElementById('audit-log');
+      const entry = document.createElement('div');
+      entry.textContent = `${new Date().toLocaleTimeString()} | ${message}`;
+      log.appendChild(entry);
+      log.scrollTop = log.scrollHeight;
+    }
+
+    // Initial message
+    setTimeout(() => {
+      addAudit("IBA Governor initialized — All actions now require signed human intent");
+    }, 600);
   </script>
 </body>
 </html>
