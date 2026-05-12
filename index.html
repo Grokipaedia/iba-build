@@ -94,7 +94,7 @@
     }
 
     function declareIntent() {
-      const intent = prompt("Describe exactly what the agent is allowed to do in this session:", currentIntent);
+      const intent = prompt("Describe exactly what the agent is allowed to do:", currentIntent);
       if (intent) {
         currentIntent = intent;
         document.getElementById('intent-status').innerHTML = `✅ Current Intent: ${intent.substring(0,60)}...`;
@@ -125,20 +125,4 @@
       messages.innerHTML += `<div><strong>You:</strong> ${text}</div>`;
 
       if (!currentIntent) {
-        messages.innerHTML += `<div style="color:#ff6b6b"><strong>IBA:</strong> BLOCKED — No signed human intent certificate</div>`;
-      } else {
-        messages.innerHTML += `<div><strong>IBA AI:</strong> Working under intent: ${currentIntent.substring(0,60)}...</div>`;
-        addAudit(`AI request: ${text}`);
-      }
-      input.value = '';
-      messages.scrollTop = messages.scrollHeight;
-    }
-
-    // Init
-    window.onload = () => {
-      renderFileTree();
-      addAudit("IBA Governor initialized — All actions now require signed human intent");
-    };
-  </script>
-</body>
-</html>
+        messages.innerHTML += `<div style="color:#ff6b6b"><strong>IBA:</strong
