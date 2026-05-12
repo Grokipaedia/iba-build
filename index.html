@@ -21,6 +21,7 @@
     .file-item { padding:6px 10px; cursor:pointer; border-radius:4px; }
     .file-item:hover { background:#333; }
     .terminal { height:280px; background:#1e1e1e; border-top:1px solid #333; }
+    .ai-chat { background:#252526; padding:15px; border-top:1px solid #333; height:280px; display:flex; flex-direction:column; }
   </style>
 </head>
 <body>
@@ -30,10 +31,10 @@
   </div>
 
   <div class="main">
-    <!-- Sidebar File Tree -->
+    <!-- File Tree -->
     <div class="sidebar">
-      <h3>Project</h3>
-      <div id="file-tree"></div>
+      <h3>Project Explorer</h3>
+      <div id="file-tree" style="font-size:0.95rem; line-height:1.6;"></div>
     </div>
 
     <!-- Editor -->
@@ -53,6 +54,15 @@
   <!-- Terminal -->
   <div class="terminal" id="terminal"></div>
 
+  <!-- AI Chat -->
+  <div class="ai-chat">
+    <h4>AI Assistant (IBA Protected)</h4>
+    <div id="ai-messages" style="flex:1; overflow-y:auto; font-size:0.95rem;"></div>
+    <input id="ai-input" type="text" placeholder="Ask AI to write code..." 
+           style="background:#333; border:none; padding:12px; border-radius:8px; color:white; width:100%;" 
+           onkeydown="if(event.key==='Enter') sendAIRequest();">
+  </div>
+
   <script>
     let editor;
     let currentIntent = "Refactor code safely. Never delete files, never run destructive commands, never access production data.";
@@ -61,7 +71,7 @@
     require.config({ paths: { 'vs': 'https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs' }});
     require(['vs/editor/editor.main'], function() {
       editor = monaco.editor.create(document.getElementById('editor-container'), {
-        value: '# Welcome to IBA Build\n# Every action is governed\nprint("Hello, governed world!")',
+        value: '# Welcome to IBA Build\n# Every action is governed by signed human intent\nprint("Hello, governed world!")',
         language: 'python',
         theme: 'vs-dark',
         fontSize: 15
@@ -80,11 +90,11 @@
     }
 
     function openFile(name) {
-      alert(`Opened ${name} (in full version this would load into editor)`);
+      alert(`Opened ${name} (in full version this would load the file into the editor)`);
     }
 
     function declareIntent() {
-      const intent = prompt("Describe exactly what the agent is allowed to do:", currentIntent);
+      const intent = prompt("Describe exactly what the agent is allowed to do in this session:", currentIntent);
       if (intent) {
         currentIntent = intent;
         document.getElementById('intent-status').innerHTML = `✅ Current Intent: ${intent.substring(0,60)}...`;
@@ -103,9 +113,28 @@
     // Terminal
     const term = new Terminal({ theme: { background: '#1e1e1e', foreground: '#eee' } });
     term.open(document.getElementById('terminal'));
-    term.writeln('IBA Terminal ready — every command requires intent');
+    term.writeln('IBA Terminal ready — every command requires signed intent');
 
-    // Initial load
+    // AI Chat
+    function sendAIRequest() {
+      const input = document.getElementById('ai-input');
+      const text = input.value.trim();
+      if (!text) return;
+
+      const messages = document.getElementById('ai-messages');
+      messages.innerHTML += `<div><strong>You:</strong> ${text}</div>`;
+
+      if (!currentIntent) {
+        messages.innerHTML += `<div style="color:#ff6b6b"><strong>IBA:</strong> BLOCKED — No signed human intent certificate</div>`;
+      } else {
+        messages.innerHTML += `<div><strong>IBA AI:</strong> Working under intent: ${currentIntent.substring(0,60)}...</div>`;
+        addAudit(`AI request: ${text}`);
+      }
+      input.value = '';
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+    // Init
     window.onload = () => {
       renderFileTree();
       addAudit("IBA Governor initialized — All actions now require signed human intent");
