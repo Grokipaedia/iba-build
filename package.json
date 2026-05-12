@@ -1,0 +1,18 @@
+
+---
+
+**File 2: package.json**
+```json
+{
+  "name": "iba-build",
+  "version": "0.1.0",
+  "description": "Governed desktop coding app with IBA",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron ."
+  },
+  "dependencies": {
+    "electron": "^30.0.0"
+  }
+}
