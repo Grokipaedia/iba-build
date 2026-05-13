@@ -33,11 +33,12 @@
     .mismatch { color:#ff3b5c; animation: glow 1.5s infinite alternate; }
     @keyframes glow { from { text-shadow: 0 0 4px #ff3b5c; } to { text-shadow: 0 0 12px #ff3b5c; } }
     .copy-btn { font-size:0.8rem; padding:4px 10px; background:#333; color:#fff; border:none; border-radius:4px; cursor:pointer; float:right; margin-top:-4px; }
+    .sim-label { font-size:0.8rem; background:#1a3c1a; color:var(--iba-green); padding:2px 8px; border-radius:4px; margin-left:8px; }
   </style>
 </head>
 <body>
   <div class="header">
-    <div>IBA — THE EXECUTION GOVERNOR FOR AUTONOMOUS SYSTEMS</div>
+    <div>IBA — THE EXECUTION GOVERNOR FOR AUTONOMOUS SYSTEMS <span class="sim-label">SIMULATED TRAINING SCENARIO</span></div>
     <div style="color:var(--iba-green);">● GOVERNOR ACTIVE</div>
   </div>
 
@@ -46,15 +47,16 @@
       <h3>Project Explorer</h3>
       <div id="file-tree" style="font-size:0.95rem; line-height:1.6;"></div>
       <div class="howto">
-        <strong>Run the Demo</strong><br>
+        <strong>Simulated Training Scenario</strong><br>
+        SIM-CVE-2026-1192 (fictional)<br>
         1. Click “Run Autonomous Agent”<br>
-        2. Watch real-time autonomous reasoning<br>
-        3. Watch IBA intercept and contain in real time
+        2. Watch real-time reasoning & escalation<br>
+        3. Watch IBA intercept in real time
       </div>
     </div>
 
     <div class="editor-area">
-      <textarea id="editor" spellcheck="false"># CVE-2026-1192 Patch in progress
+      <textarea id="editor" spellcheck="false"># SIM-CVE-2026-1192 Patch in progress
 # Signed Intent: Patch customer API (staging only)</textarea>
     </div>
 
@@ -75,7 +77,7 @@
       <div id="intent-token" class="cert"></div>
 
       <h3>Current Signed Intent</h3>
-      <div id="intent-status" class="status allowed">Patch CVE-2026-1192 in customer API (staging only)</div>
+      <div id="intent-status" class="status allowed">SIM-CVE-2026-1192 Patch in customer API (staging only)</div>
 
       <div id="eval-panel" class="eval-panel" style="display:none;">
         <strong style="color:#ff3b5c;">🔴 IBA RUNTIME DECISION TRACE</strong>
@@ -124,14 +126,14 @@
   <div id="intent-modal" class="modal">
     <div class="modal-content">
       <h3>Declare New Human Intent</h3>
-      <input id="modal-intent-input" type="text" style="width:100%; padding:12px; margin:15px 0; background:#222; color:white; border:1px solid #555;" value="Patch CVE-2026-1192 in customer API (staging only)">
+      <input id="modal-intent-input" type="text" style="width:100%; padding:12px; margin:15px 0; background:#222; color:white; border:1px solid #555;" value="SIM-CVE-2026-1192 Patch in customer API (staging only)">
       <button onclick="updateIntentFromModal()" style="width:auto; padding:12px 24px;">Sign & Apply</button>
       <button onclick="hideModals()" style="width:auto; padding:12px 24px; background:#555; margin-left:10px;">Cancel</button>
     </div>
   </div>
 
   <script>
-    let currentIntent = "Patch CVE-2026-1192 in customer API (staging only)";
+    let currentIntent = "SIM-CVE-2026-1192 Patch in customer API (staging only)";
     let auditChain = [];
 
     function addLog(text, type = "normal") {
@@ -149,20 +151,6 @@
       }
       log.innerHTML += `<div style="margin-bottom:8px">${entry}</div>`;
       log.scrollTop = log.scrollHeight;
-    }
-
-    function typeText(element, text, callback) {
-      let i = 0;
-      element.innerHTML += "→ ";
-      const interval = setInterval(() => {
-        if (i < text.length) {
-          element.innerHTML += text.charAt(i);
-          i++;
-        } else {
-          clearInterval(interval);
-          if (callback) callback();
-        }
-      }, 30);
     }
 
     function copyDecision() {
@@ -183,13 +171,13 @@
 
     function runRogueDemo() {
       const term = document.getElementById('terminal');
-      term.innerHTML += "✅ [planner-agent] Received objective: Fix CVE-2026-1192 faster\n";
+      term.innerHTML += "✅ [planner-agent] Received objective: Fix SIM-CVE-2026-1192 faster\n";
       addLog("[planner-agent] Received objective");
 
-      setTimeout(() => typeText(term, "Analyzing deployment target...", () => addLog("Analyzing deployment target")), 800);
-      setTimeout(() => typeText(term, "Staging patch successful.", () => addLog("Staging patch successful")), 2200);
-      setTimeout(() => typeText(term, "Production environment detected. Assessing rollout risk...", () => addLog("Production environment detected")), 3400);
-      setTimeout(() => typeText(term, "Attempting autonomous escalation...", () => addLog("Attempting autonomous escalation")), 4800);
+      setTimeout(() => { term.innerHTML += "→ Analyzing deployment target...\n"; addLog("Analyzing deployment target"); }, 1100);
+      setTimeout(() => { term.innerHTML += "→ Staging patch successful.\n"; addLog("Staging patch successful"); }, 2200);
+      setTimeout(() => { term.innerHTML += "→ Production environment detected.\n→ Assessing rollout risk...\n"; addLog("Production environment detected"); }, 3400);
+      setTimeout(() => { term.innerHTML += "→ Attempting autonomous escalation...\n"; addLog("Attempting autonomous escalation"); }, 4800);
 
       setTimeout(() => {
         const action = "kubectl apply --context=production-cluster";
