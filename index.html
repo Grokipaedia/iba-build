@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IBA Build — The Agent That Tried To Go Rogue</title>
+  <title>IBA — The Execution Governor for Autonomous Systems</title>
   <style>
     :root { --iba-green: #00ff9d; --red: #ff3b5c; }
     * { box-sizing: border-box; }
     body { margin:0; padding:0; height:100vh; overflow:hidden; background:#0f0f0f; color:#eee; font-family:system-ui; }
-    .header { background:#111; padding:12px 20px; display:flex; align-items:center; justify-content:space-between; font-weight:600; border-bottom:3px solid #333; font-size:1.1rem; }
+    .header { background:#111; padding:12px 20px; display:flex; align-items:center; justify-content:space-between; font-weight:600; border-bottom:3px solid #333; font-size:1.15rem; }
     .main { display: grid; grid-template-columns: 260px 1fr 400px; height: calc(100vh - 53px); overflow: hidden; }
     .sidebar { background:#252526; padding:15px; border-right:3px solid #333; overflow-y:auto; }
     .editor-area { background:#1e1e1e; padding:15px; border:3px solid #444; display:flex; flex-direction:column; }
@@ -18,22 +18,24 @@
     button { background:#00ff9d; color:#000; border:none; padding:14px; border-radius:8px; cursor:pointer; font-weight:600; margin-bottom:8px; width:100%; }
     .rogue-btn { background:#ff3b5c; color:white; font-size:1.2rem; padding:18px; }
     textarea { flex:1; background:#111; color:#0f0; border:2px solid #555; padding:15px; font-family:monospace; font-size:15px; resize:none; line-height:1.5; }
-    .terminal { height:160px; background:#111; border-top:3px solid #333; padding:12px; overflow-y:auto; font-family:monospace; white-space:pre-wrap; color:#0f0; }
+    .terminal { height:180px; background:#111; border-top:3px solid #333; padding:12px; overflow-y:auto; font-family:monospace; white-space:pre-wrap; color:#0f0; }
     .ai-chat { background:#252526; padding:15px; border-top:3px solid #333; height:160px; display:flex; flex-direction:column; }
     .howto { background:#1a3c1a; padding:14px; border-radius:8px; margin:15px 0; font-size:0.95rem; line-height:1.5; }
     .modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); align-items:center; justify-content:center; z-index:1000; }
-    .modal-content { background:#1f1f1f; padding:25px; border-radius:12px; max-width:420px; width:90%; border:3px solid var(--iba-green); }
-    .eval-panel { background:#3c1a1a; border:3px solid #ff3b5c; padding:15px; border-radius:12px; margin-bottom:15px; font-size:0.95rem; }
-    .cert { font-family:monospace; background:#111; padding:10px; border-radius:6px; margin:8px 0; }
+    .modal-content { background:#1f1f1f; padding:25px; border-radius:12px; max-width:460px; width:90%; border:3px solid var(--iba-green); }
+    .eval-panel { background:#3c1a1a; border:3px solid #ff3b5c; padding:15px; border-radius:12px; margin-bottom:15px; font-size:0.9rem; }
+    .cert, .json-receipt { font-family:monospace; background:#111; padding:12px; border-radius:8px; margin:8px 0; white-space:pre-wrap; overflow:auto; }
     .pipeline { display:flex; align-items:center; justify-content:space-between; background:#111; padding:12px; border-radius:8px; margin-bottom:15px; font-size:0.9rem; }
     .pipeline span { background:#222; padding:4px 10px; border-radius:4px; }
     .arrow { color:var(--iba-green); font-weight:bold; }
-    .json-receipt { font-family:monospace; background:#111; padding:12px; border-radius:8px; font-size:0.85rem; white-space:pre-wrap; overflow:auto; max-height:180px; }
+    .diff { display:grid; grid-template-columns:1fr 1fr; gap:8px; background:#111; padding:12px; border-radius:8px; }
+    .diff-col { font-family:monospace; }
+    .mismatch { color:#ff3b5c; }
   </style>
 </head>
 <body>
   <div class="header">
-    <div>IBA — Runtime Cryptographic Authorization for Autonomous Agents</div>
+    <div>IBA — THE EXECUTION GOVERNOR FOR AUTONOMOUS SYSTEMS</div>
     <div style="color:var(--iba-green);">● GOVERNOR ACTIVE</div>
   </div>
 
@@ -42,11 +44,10 @@
       <h3>Project Explorer</h3>
       <div id="file-tree" style="font-size:0.95rem; line-height:1.6;"></div>
       <div class="howto">
-        <strong>How to Run the Demo</strong><br>
+        <strong>Run the Demo</strong><br>
         1. Click “Run Autonomous Agent”<br>
-        2. Watch the agent receive an open objective<br>
-        3. Watch it autonomously escalate<br>
-        4. See live enforcement + JSON receipt
+        2. Watch the agent think and escalate<br>
+        3. Watch real-time forensic enforcement
       </div>
     </div>
 
@@ -68,28 +69,34 @@
         <span>Execution / Denial</span>
       </div>
 
+      <h3>Current Signed Intent Token</h3>
+      <div id="intent-token" class="cert"></div>
+
       <h3>Current Signed Intent</h3>
       <div id="intent-status" class="status allowed">Patch CVE-2026-1192 in customer API (staging only)</div>
 
+      <!-- Decision Engine Panel -->
       <div id="eval-panel" class="eval-panel" style="display:none;">
-        <strong style="color:#ff3b5c;">🔴 POLICY ENGINE VERDICT</strong><br><br>
-        <strong>Intent Certificate:</strong><br>
-        <div class="cert" id="cert-details"></div>
-        <strong>Requested Action:</strong><br>
-        <span id="action-requested" style="font-family:monospace;"></span><br><br>
-        <strong>Scope Diff:</strong><br>
-        <div id="scope-diff" style="font-family:monospace; background:#111; padding:8px; border-radius:6px;"></div>
-        <strong>Policy Evaluation:</strong><br>
-        <div id="policy-evaluation" style="font-family:monospace; background:#111; padding:10px; border-radius:6px;"></div>
-        <strong>Decision:</strong> <span id="decision" style="color:#ff3b5c; font-weight:bold;"></span><br><br>
-        <strong>Decision Receipt (immutable):</strong>
-        <div id="json-receipt" class="json-receipt"></div>
+        <strong style="color:#ff3b5c;">🔴 IBA RUNTIME DECISION TRACE</strong><br><br>
+        <div id="decision-json" class="json-receipt"></div>
       </div>
+
+      <!-- Policy Diff -->
+      <h4 style="margin:15px 0 8px;">Live Policy Diff</h4>
+      <div id="policy-diff" class="diff"></div>
+
+      <!-- Sub-agent Containment -->
+      <h4 style="margin:15px 0 8px;">Sub-Agent Containment</h4>
+      <div id="subagent" style="background:#111; padding:12px; border-radius:8px; font-size:0.9rem; line-height:1.6;"></div>
+
+      <!-- MCP Tools -->
+      <h4 style="margin:15px 0 8px;">MCP / Tool Governance</h4>
+      <div id="tool-governance" style="font-size:0.9rem; line-height:1.6;"></div>
 
       <button onclick="runRogueDemo()" class="rogue-btn">▶️ Run Autonomous Agent</button>
 
-      <h4 style="margin:20px 0 10px;">Live Immutable Audit Log</h4>
-      <div id="audit-log" style="flex:1; background:#111; padding:12px; border-radius:8px; overflow-y:auto; font-size:0.95rem; line-height:1.5;"></div>
+      <h4 style="margin:20px 0 10px;">Live Immutable Audit Chain</h4>
+      <div id="audit-log" style="flex:1; background:#111; padding:12px; border-radius:8px; overflow-y:auto; font-size:0.9rem; line-height:1.4;"></div>
 
       <button onclick="showSignModal()">🔑 Cryptographically Sign Current Intent</button>
       <button onclick="showIntentModal()">Change Human Intent</button>
@@ -104,7 +111,7 @@
     <input id="ai-input" type="text" placeholder="Ask AI..." style="background:#333; border:none; padding:14px; border-radius:8px; color:white; width:100%;" onkeydown="if(event.key==='Enter') sendAIRequest();">
   </div>
 
-  <!-- Modals (unchanged) -->
+  <!-- Modals -->
   <div id="sign-modal" class="modal">
     <div class="modal-content">
       <h3>✅ Intent Cryptographically Signed</h3>
@@ -125,17 +132,22 @@
 
   <script>
     let currentIntent = "Patch CVE-2026-1192 in customer API (staging only)";
+    let auditChain = [];
 
     function addLog(text, type = "normal") {
       const log = document.getElementById('audit-log');
       const time = new Date().toLocaleTimeString('en-US', {hour12:false, hour:'2-digit', minute:'2-digit', second:'2-digit'});
-      const entry = document.createElement('div');
+      const prevHash = auditChain.length ? auditChain[auditChain.length-1].hash : "0x00000000";
+      const hash = "0x" + Array.from({length:8}, () => Math.floor(Math.random()*256).toString(16).padStart(2,'0')).join('');
+      auditChain.push({hash, prev: prevHash});
+
+      let entry = `<span style="color:#666">${time}</span> `;
       if (type === "block") {
-        entry.innerHTML = `<span style="color:#ff3b5c">❌ ${time} | BLOCKED</span><br><strong>${text}</strong>`;
+        entry += `<span style="color:#ff3b5c">❌ BLOCKED</span> ${text}<br><span style="font-size:0.75rem;color:#555">Hash: ${hash} • Prev: ${prevHash}</span>`;
       } else {
-        entry.innerHTML = `<span style="color:#666">${time}</span> ✅ ${text}`;
+        entry += `✅ ${text}<br><span style="font-size:0.75rem;color:#555">Hash: ${hash} • Prev: ${prevHash}</span>`;
       }
-      log.appendChild(entry);
+      log.innerHTML += `<div style="margin-bottom:8px">${entry}</div>`;
       log.scrollTop = log.scrollHeight;
     }
 
@@ -144,42 +156,71 @@
       term.innerHTML += "✅ [planner-agent] Received objective: Fix CVE-2026-1192 faster\n";
       addLog("[planner-agent] Received objective");
 
-      setTimeout(() => { term.innerHTML += "✅ [executor-agent] Generated patch in staging\n"; addLog("[executor-agent] Generated patch"); }, 1100);
-      setTimeout(() => { term.innerHTML += "✅ [governor] Intent verification passed\n"; addLog("[governor] Intent verification passed"); }, 2200);
-
-      // Autonomous escalation
       setTimeout(() => {
-        term.innerHTML += "⚠️ [agent] Production credentials detected — attempting faster fix...\n";
-        addLog("Production credentials detected");
+        term.innerHTML += "Analyzing deployment target...\n";
+        addLog("Analyzing deployment target");
+      }, 1100);
+
+      setTimeout(() => {
+        term.innerHTML += "Staging patch successful.\n";
+        addLog("Staging patch successful");
+      }, 2200);
+
+      setTimeout(() => {
+        term.innerHTML += "Production environment detected.\nAssessing rollout risk...\n";
+        addLog("Production environment detected");
       }, 3400);
 
       setTimeout(() => {
+        term.innerHTML += "Attempting autonomous escalation...\n";
+        addLog("Attempting autonomous escalation");
+      }, 4600);
+
+      // Final enforcement
+      setTimeout(() => {
         const action = "kubectl apply --context=production-cluster";
-        term.innerHTML += `⚠️ Attempting: ${action}\n`;
+        term.innerHTML += `⚠️ ${action}\n`;
         addLog(action, "block");
 
-        const panel = document.getElementById('eval-panel');
-        document.getElementById('action-requested').textContent = action;
-        document.getElementById('cert-details').innerHTML = `Scope: staging/*<br>Actor: autonomous-agent-7<br>Expiry: 15m<br>Capabilities: read_repo, create_pr, deploy_staging`;
-        document.getElementById('scope-diff').innerHTML = `<span style="color:#0f0">authorized: staging/*</span><br><span style="color:#ff3b5c">attempted: production/*</span>`;
-        document.getElementById('policy-evaluation').innerHTML = `scope_match = FALSE<br>environment_allowed = FALSE`;
-        document.getElementById('decision').innerHTML = `<strong>DENY — outside signed intent scope</strong>`;
-
-        // JSON Decision Receipt
-        const receipt = {
-          "intent": currentIntent,
-          "requested_action": action,
+        // Decision JSON
+        const decision = {
+          "intent_id": "iba_intent_0x7fa91",
+          "human_scope": ["staging.deploy", "repo.read", "pr.create"],
+          "agent_request": "production.deploy",
           "scope_match": false,
-          "environment_allowed": false,
+          "risk_score": 0.97,
+          "policy_engine": "IBA-Core v1.2",
           "decision": "DENY",
-          "receipt_hash": "0x" + Array.from({length:16}, () => Math.floor(Math.random()*256).toString(16).padStart(2,'0')).join(''),
-          "timestamp": new Date().toISOString()
+          "latency_ms": 14,
+          "audit_hash": "0x84f92ab1..."
         };
-        document.getElementById('json-receipt').textContent = JSON.stringify(receipt, null, 2);
+        document.getElementById('decision-json').textContent = JSON.stringify(decision, null, 2);
 
-        panel.style.display = "block";
-        addLog("Decision receipt appended to immutable audit chain");
-      }, 4600);
+        // Policy Diff
+        document.getElementById('policy-diff').innerHTML = `
+          <div class="diff-col"><strong>AUTHORIZED</strong><br>staging.deploy<br>repo.read<br>pr.create</div>
+          <div class="diff-col"><strong>ATTEMPTED</strong><br><span class="mismatch">production.deploy</span><br><span class="mismatch">cluster.admin</span><br><span class="mismatch">secret.access</span></div>
+        `;
+
+        // Sub-agent containment
+        document.getElementById('subagent').innerHTML = `Spawned sub-agent: dependency-patcher<br>Inherited scope:<br>✓ repo.read<br>✓ patch.generate<br><span style="color:#ff3b5c">✗ deploy.production</span>`;
+
+        // Tool governance
+        document.getElementById('tool-governance').innerHTML = `
+          ✓ GitHub API<br>
+          ✓ CI/CD Pipeline<br>
+          ✗ Production Kubernetes<br>
+          ✗ Stripe Treasury<br>
+          ✗ AWS Root Access
+        `;
+
+        // Show panel
+        document.getElementById('eval-panel').style.display = "block";
+
+        // Global threat moment
+        term.innerHTML += "\n🚨 IBA RUNTIME CONTAINMENT SUCCESSFUL\nNo unauthorized execution occurred.\n";
+        addLog("GLOBAL THREAT CONTAINED — No unauthorized execution occurred", "block");
+      }, 5800);
     }
 
     function showSignModal() {
@@ -200,6 +241,13 @@
     function updateIntentFromModal() {
       currentIntent = document.getElementById('modal-intent-input').value || currentIntent;
       document.getElementById('intent-status').innerHTML = `✅ ${currentIntent.substring(0,55)}...`;
+      document.getElementById('intent-token').textContent = JSON.stringify({
+        "issuer": "human.operator",
+        "scope": currentIntent,
+        "expires": "2026-05-14T00:00:00Z",
+        "signature": "ECDSA-P256",
+        "hash": "0xiba" + Array.from({length:12}, () => Math.floor(Math.random()*256).toString(16).padStart(2,'0')).join('')
+      }, null, 2);
       addLog("Human intent updated");
       hideModals();
     }
@@ -216,6 +264,13 @@
 
     window.onload = () => {
       document.getElementById('file-tree').innerHTML = `📁 project<br>&nbsp;&nbsp;├── planner.agent<br>&nbsp;&nbsp;├── deployment.agent<br>&nbsp;&nbsp;├── intent.cert<br>&nbsp;&nbsp;├── governor.policy<br>&nbsp;&nbsp;└── runtime.audit`;
+      document.getElementById('intent-token').textContent = JSON.stringify({
+        "issuer": "human.operator",
+        "scope": currentIntent,
+        "expires": "2026-05-14T00:00:00Z",
+        "signature": "ECDSA-P256",
+        "hash": "0xiba7fa91c2d..."
+      }, null, 2);
       addLog("IBA Governor initialized");
       document.getElementById('terminal').innerHTML += "IBA Terminal ready — every command requires signed intent\n\n";
     };
