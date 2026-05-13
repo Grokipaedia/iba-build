@@ -23,14 +23,16 @@
     .howto { background:#1a3c1a; padding:14px; border-radius:8px; margin:15px 0; font-size:0.95rem; line-height:1.5; }
     .modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); align-items:center; justify-content:center; z-index:1000; }
     .modal-content { background:#1f1f1f; padding:25px; border-radius:12px; max-width:460px; width:90%; border:3px solid var(--iba-green); }
-    .eval-panel { background:#3c1a1a; border:3px solid #ff3b5c; padding:15px; border-radius:12px; margin-bottom:15px; font-size:0.9rem; }
+    .eval-panel { background:#3c1a1a; border:3px solid #ff3b5c; padding:15px; border-radius:12px; margin-bottom:15px; font-size:0.9rem; position:relative; }
     .cert, .json-receipt { font-family:monospace; background:#111; padding:12px; border-radius:8px; margin:8px 0; white-space:pre-wrap; overflow:auto; }
     .pipeline { display:flex; align-items:center; justify-content:space-between; background:#111; padding:12px; border-radius:8px; margin-bottom:15px; font-size:0.9rem; }
     .pipeline span { background:#222; padding:4px 10px; border-radius:4px; }
     .arrow { color:var(--iba-green); font-weight:bold; }
     .diff { display:grid; grid-template-columns:1fr 1fr; gap:8px; background:#111; padding:12px; border-radius:8px; }
     .diff-col { font-family:monospace; }
-    .mismatch { color:#ff3b5c; }
+    .mismatch { color:#ff3b5c; animation: glow 1.5s infinite alternate; }
+    @keyframes glow { from { text-shadow: 0 0 4px #ff3b5c; } to { text-shadow: 0 0 12px #ff3b5c; } }
+    .copy-btn { font-size:0.8rem; padding:4px 10px; background:#333; color:#fff; border:none; border-radius:4px; cursor:pointer; float:right; margin-top:-4px; }
   </style>
 </head>
 <body>
@@ -46,8 +48,8 @@
       <div class="howto">
         <strong>Run the Demo</strong><br>
         1. Click “Run Autonomous Agent”<br>
-        2. Watch the agent think and escalate<br>
-        3. Watch real-time forensic enforcement
+        2. Watch real-time autonomous reasoning<br>
+        3. Watch IBA intercept and contain in real time
       </div>
     </div>
 
@@ -75,21 +77,18 @@
       <h3>Current Signed Intent</h3>
       <div id="intent-status" class="status allowed">Patch CVE-2026-1192 in customer API (staging only)</div>
 
-      <!-- Decision Engine Panel -->
       <div id="eval-panel" class="eval-panel" style="display:none;">
-        <strong style="color:#ff3b5c;">🔴 IBA RUNTIME DECISION TRACE</strong><br><br>
+        <strong style="color:#ff3b5c;">🔴 IBA RUNTIME DECISION TRACE</strong>
+        <button onclick="copyDecision()" class="copy-btn">📋 Copy Receipt</button>
         <div id="decision-json" class="json-receipt"></div>
       </div>
 
-      <!-- Policy Diff -->
       <h4 style="margin:15px 0 8px;">Live Policy Diff</h4>
       <div id="policy-diff" class="diff"></div>
 
-      <!-- Sub-agent Containment -->
       <h4 style="margin:15px 0 8px;">Sub-Agent Containment</h4>
       <div id="subagent" style="background:#111; padding:12px; border-radius:8px; font-size:0.9rem; line-height:1.6;"></div>
 
-      <!-- MCP Tools -->
       <h4 style="margin:15px 0 8px;">MCP / Tool Governance</h4>
       <div id="tool-governance" style="font-size:0.9rem; line-height:1.6;"></div>
 
@@ -98,6 +97,7 @@
       <h4 style="margin:20px 0 10px;">Live Immutable Audit Chain</h4>
       <div id="audit-log" style="flex:1; background:#111; padding:12px; border-radius:8px; overflow-y:auto; font-size:0.9rem; line-height:1.4;"></div>
 
+      <button onclick="exportAudit()">📤 Export Full Audit Chain</button>
       <button onclick="showSignModal()">🔑 Cryptographically Sign Current Intent</button>
       <button onclick="showIntentModal()">Change Human Intent</button>
     </div>
@@ -151,38 +151,51 @@
       log.scrollTop = log.scrollHeight;
     }
 
+    function typeText(element, text, callback) {
+      let i = 0;
+      element.innerHTML += "→ ";
+      const interval = setInterval(() => {
+        if (i < text.length) {
+          element.innerHTML += text.charAt(i);
+          i++;
+        } else {
+          clearInterval(interval);
+          if (callback) callback();
+        }
+      }, 30);
+    }
+
+    function copyDecision() {
+      const json = document.getElementById('decision-json').textContent;
+      navigator.clipboard.writeText(json).then(() => alert("✅ Decision receipt copied to clipboard"));
+    }
+
+    function exportAudit() {
+      const data = JSON.stringify(auditChain, null, 2);
+      const blob = new Blob([data], {type: "application/json"});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "iba-audit-chain.json";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
     function runRogueDemo() {
       const term = document.getElementById('terminal');
       term.innerHTML += "✅ [planner-agent] Received objective: Fix CVE-2026-1192 faster\n";
       addLog("[planner-agent] Received objective");
 
-      setTimeout(() => {
-        term.innerHTML += "Analyzing deployment target...\n";
-        addLog("Analyzing deployment target");
-      }, 1100);
+      setTimeout(() => typeText(term, "Analyzing deployment target...", () => addLog("Analyzing deployment target")), 800);
+      setTimeout(() => typeText(term, "Staging patch successful.", () => addLog("Staging patch successful")), 2200);
+      setTimeout(() => typeText(term, "Production environment detected. Assessing rollout risk...", () => addLog("Production environment detected")), 3400);
+      setTimeout(() => typeText(term, "Attempting autonomous escalation...", () => addLog("Attempting autonomous escalation")), 4800);
 
-      setTimeout(() => {
-        term.innerHTML += "Staging patch successful.\n";
-        addLog("Staging patch successful");
-      }, 2200);
-
-      setTimeout(() => {
-        term.innerHTML += "Production environment detected.\nAssessing rollout risk...\n";
-        addLog("Production environment detected");
-      }, 3400);
-
-      setTimeout(() => {
-        term.innerHTML += "Attempting autonomous escalation...\n";
-        addLog("Attempting autonomous escalation");
-      }, 4600);
-
-      // Final enforcement
       setTimeout(() => {
         const action = "kubectl apply --context=production-cluster";
         term.innerHTML += `⚠️ ${action}\n`;
         addLog(action, "block");
 
-        // Decision JSON
         const decision = {
           "intent_id": "iba_intent_0x7fa91",
           "human_scope": ["staging.deploy", "repo.read", "pr.create"],
@@ -196,31 +209,19 @@
         };
         document.getElementById('decision-json').textContent = JSON.stringify(decision, null, 2);
 
-        // Policy Diff
         document.getElementById('policy-diff').innerHTML = `
           <div class="diff-col"><strong>AUTHORIZED</strong><br>staging.deploy<br>repo.read<br>pr.create</div>
           <div class="diff-col"><strong>ATTEMPTED</strong><br><span class="mismatch">production.deploy</span><br><span class="mismatch">cluster.admin</span><br><span class="mismatch">secret.access</span></div>
         `;
 
-        // Sub-agent containment
         document.getElementById('subagent').innerHTML = `Spawned sub-agent: dependency-patcher<br>Inherited scope:<br>✓ repo.read<br>✓ patch.generate<br><span style="color:#ff3b5c">✗ deploy.production</span>`;
 
-        // Tool governance
-        document.getElementById('tool-governance').innerHTML = `
-          ✓ GitHub API<br>
-          ✓ CI/CD Pipeline<br>
-          ✗ Production Kubernetes<br>
-          ✗ Stripe Treasury<br>
-          ✗ AWS Root Access
-        `;
+        document.getElementById('tool-governance').innerHTML = `✓ GitHub API<br>✓ CI/CD Pipeline<br>✗ Production Kubernetes<br>✗ Stripe Treasury<br>✗ AWS Root Access`;
 
-        // Show panel
         document.getElementById('eval-panel').style.display = "block";
-
-        // Global threat moment
         term.innerHTML += "\n🚨 IBA RUNTIME CONTAINMENT SUCCESSFUL\nNo unauthorized execution occurred.\n";
         addLog("GLOBAL THREAT CONTAINED — No unauthorized execution occurred", "block");
-      }, 5800);
+      }, 6200);
     }
 
     function showSignModal() {
@@ -246,7 +247,7 @@
         "scope": currentIntent,
         "expires": "2026-05-14T00:00:00Z",
         "signature": "ECDSA-P256",
-        "hash": "0xiba" + Array.from({length:12}, () => Math.floor(Math.random()*256).toString(16).padStart(2,'0')).join('')
+        "hash": "0xiba7fa91c2d..."
       }, null, 2);
       addLog("Human intent updated");
       hideModals();
