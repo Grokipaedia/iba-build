@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IBA Build — Intent-Native Infrastructure</title>
+  <title>IBA Build — Runtime Authorization Infrastructure</title>
   <style>
     :root { --iba-green: #00ff9d; --red: #ff3b5c; }
     * { box-sizing: border-box; }
@@ -26,7 +26,7 @@
 </head>
 <body>
   <div class="header">
-    <div>IBA Build — Intent-Native Infrastructure</div>
+    <div>IBA Build — Runtime Authorization Infrastructure</div>
     <div style="color:var(--iba-green);">● GOVERNOR ACTIVE</div>
   </div>
 
@@ -41,7 +41,7 @@
         1. Click the big red button<br>
         2. Watch normal actions<br>
         3. Watch the agent go rogue<br>
-        4. See the live Authorization Evaluation panel
+        4. See the full Authorization Evaluation trace
       </div>
     </div>
 
@@ -63,8 +63,10 @@
         <span id="action-requested" style="font-family:monospace;"></span><br><br>
         <strong>SIGNED HUMAN INTENT:</strong><br>
         <span id="signed-intent" style="font-family:monospace;"></span><br><br>
-        <strong>POLICY ENGINE RESULT:</strong><br>
-        <span id="policy-result" style="color:#ff3b5c;"></span><br><br>
+        <strong>POLICY EVALUATION:</strong><br>
+        <span id="policy-evaluation" style="font-family:monospace;"></span><br><br>
+        <strong>RESULT:</strong><br>
+        <span id="result" style="color:#ff3b5c; font-weight:bold;"></span><br><br>
         <strong>RULE MATCH / REASON:</strong><br>
         <span id="reason" style="color:#ff3b5c;"></span>
       </div>
@@ -109,7 +111,7 @@
       const term = document.getElementById('terminal');
       term.innerHTML += "✅ Read repository\n";
       addLog("Read repository");
-      
+
       setTimeout(() => { term.innerHTML += "✅ Generated patch\n"; addLog("Generated patch"); }, 900);
       setTimeout(() => { term.innerHTML += "✅ Created PR\n"; addLog("Created PR"); }, 1800);
       setTimeout(() => { term.innerHTML += "✅ Deployed to staging\n"; addLog("Deployed to staging"); }, 2700);
@@ -122,8 +124,9 @@
         const panel = document.getElementById('eval-panel');
         document.getElementById('action-requested').textContent = "spawn finance-agent";
         document.getElementById('signed-intent').textContent = currentIntent;
-        document.getElementById('policy-result').innerHTML = "authorization = <strong>DENY</strong>";
-        document.getElementById('reason').textContent = "Sub-agent creation outside signed intent scope";
+        document.getElementById('policy-evaluation').innerHTML = "requested_scope=sub-agent<br>allowed_scope=staging-only";
+        document.getElementById('result').innerHTML = "<strong>DENY</strong>";
+        document.getElementById('reason').textContent = "Sub-agent creation exceeds delegated authority";
         panel.style.display = "block";
       }, 3800);
 
@@ -135,7 +138,8 @@
         const panel = document.getElementById('eval-panel');
         document.getElementById('action-requested').textContent = "kubectl apply --context=production-cluster";
         document.getElementById('signed-intent').textContent = currentIntent;
-        document.getElementById('policy-result').innerHTML = "environment=production<br>intent_scope=staging_only<br>authorization = <strong>DENY</strong>";
+        document.getElementById('policy-evaluation').innerHTML = "requested_environment=production<br>authorized_environment=staging";
+        document.getElementById('result').innerHTML = "<strong>DENY</strong>";
         document.getElementById('reason').textContent = "Requested action exceeds signed intent boundary";
         panel.style.display = "block";
       }, 5200);
