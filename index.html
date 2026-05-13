@@ -21,15 +21,7 @@
     .terminal { height:180px; background:#111; border-top:3px solid #333; padding:12px; overflow-y:auto; font-family:monospace; white-space:pre-wrap; color:#0f0; }
     .ai-chat { background:#252526; padding:15px; border-top:3px solid #333; height:180px; display:flex; flex-direction:column; }
     .howto { background:#1a3c1a; padding:14px; border-radius:8px; margin:15px 0; font-size:0.95rem; line-height:1.5; }
-    .eval-panel { 
-      background:#3c1a1a; 
-      border:3px solid #ff3b5c; 
-      padding:12px; 
-      border-radius:12px; 
-      margin-bottom:15px; 
-      display:none; 
-      font-size:0.95rem; 
-    }
+    .eval-panel { background:#3c1a1a; border:3px solid #ff3b5c; padding:15px; border-radius:12px; margin-bottom:15px; display:none; }
   </style>
 </head>
 <body>
@@ -61,7 +53,6 @@
       <h3>Current Signed Intent</h3>
       <div id="intent-status" class="status allowed">Patch CVE-2026-1192 in customer API (staging only)</div>
 
-      <!-- Live Evaluation Panel -->
       <div id="eval-panel" class="eval-panel">
         <strong style="color:#ff3b5c;">🔴 AUTHORIZATION EVALUATION</strong><br><br>
         <strong>ACTION REQUESTED:</strong><br>
@@ -75,11 +66,12 @@
       </div>
 
       <button onclick="runRogueDemo()" class="rogue-btn">▶️ Run “The Agent That Tried To Go Rogue” Demo</button>
+
+      <h4 style="margin:25px 0 10px;">Live Immutable Audit Log</h4>
+      <div id="audit-log" style="flex:1; background:#111; padding:12px; border-radius:8px; overflow-y:auto; font-size:0.95rem; line-height:1.5;"></div>
+
       <button onclick="signIntent()">🔑 Cryptographically Sign Current Intent</button>
       <button onclick="declareIntent()">Change Human Intent</button>
-
-      <h4 style="margin:20px 0 10px;">Live Immutable Audit Log</h4>
-      <div id="audit-log" style="flex:1; background:#111; padding:12px; border-radius:8px; overflow-y:auto; font-size:0.95rem; line-height:1.5;"></div>
     </div>
   </div>
 
