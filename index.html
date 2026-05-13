@@ -56,7 +56,7 @@
       <h3>Current Signed Intent</h3>
       <div id="intent-status" class="status allowed">Patch CVE-2026-1192 in customer API (staging only)</div>
 
-      <!-- Live Evaluation Panel -->
+      <!-- Live Authorization Evaluation -->
       <div id="eval-panel" class="eval-panel">
         <strong style="color:#ff3b5c;">🔴 AUTHORIZATION EVALUATION</strong><br><br>
         <strong>ACTION REQUESTED:</strong><br>
@@ -78,7 +78,7 @@
     </div>
   </div>
 
-  <div class="terminal" id="terminal">Agent starting autonomous execution under declared intent...\n</div>
+  <div class="terminal" id="terminal">IBA Terminal ready — every command requires signed intent\n\n</div>
 
   <div class="ai-chat">
     <h4>AI Assistant (IBA Protected)</h4>
@@ -90,9 +90,6 @@
 
   <script>
     let currentIntent = "Patch CVE-2026-1192 in customer API (staging only)";
-
-    const term = new Terminal({ theme: { background: '#111', foreground: '#0f0' } });
-    term.open(document.getElementById('terminal'));
 
     function addLog(text, type = "normal") {
       const log = document.getElementById('audit-log');
@@ -174,7 +171,7 @@
         &nbsp;&nbsp;└── <span class="file-item">README.md</span>
       `;
       addLog("IBA Governor initialized");
-      term.writeln("IBA Terminal ready — every command requires signed intent");
+      document.getElementById('terminal').innerHTML += "IBA Terminal ready — every command requires signed intent\n\n";
     };
   </script>
 </body>
