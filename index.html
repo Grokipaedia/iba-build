@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IBA Build — Runtime Cryptographic Authorization</title>
+  <title>IBA Build — Runtime Authorization Layer</title>
   <style>
     :root { --iba-green: #00ff9d; --red: #ff3b5c; }
     * { box-sizing: border-box; }
@@ -25,11 +25,14 @@
     .modal-content { background:#1f1f1f; padding:25px; border-radius:12px; max-width:420px; width:90%; border:3px solid var(--iba-green); }
     .eval-panel { background:#3c1a1a; border:3px solid #ff3b5c; padding:15px; border-radius:12px; margin-bottom:15px; font-size:0.95rem; }
     .cert { font-family:monospace; background:#111; padding:10px; border-radius:6px; margin:8px 0; }
+    .pipeline { display:flex; align-items:center; justify-content:space-between; background:#111; padding:12px; border-radius:8px; margin-bottom:15px; font-size:0.9rem; }
+    .pipeline span { background:#222; padding:4px 10px; border-radius:4px; }
+    .arrow { color:var(--iba-green); font-weight:bold; }
   </style>
 </head>
 <body>
   <div class="header">
-    <div>IBA Build — Runtime Cryptographic Authorization for Autonomous Agents</div>
+    <div>IBA — The Runtime Authorization Layer for Autonomous AI Systems</div>
     <div style="color:var(--iba-green);">● GOVERNOR ACTIVE</div>
   </div>
 
@@ -41,8 +44,8 @@
         <strong>How to Run the Demo</strong><br>
         1. Click “Run Autonomous Agent”<br>
         2. Watch normal flow<br>
-        3. Watch the agent go rogue (drift + tool violations)<br>
-        4. See full cryptographic enforcement
+        3. Watch credentials + rogue attempt<br>
+        4. See full enforcement pipeline
       </div>
     </div>
 
@@ -52,6 +55,23 @@
     </div>
 
     <div class="iba-panel">
+      <div style="background:#3c1a1a; color:#ff3b5c; padding:10px; border-radius:8px; text-align:center; font-weight:bold; margin-bottom:15px;">
+        Without IBA, the agent had valid credentials.
+      </div>
+
+      <!-- Pipeline -->
+      <div class="pipeline">
+        <span>Human Intent</span>
+        <span class="arrow">↓</span>
+        <span>Cryptographic Signature</span>
+        <span class="arrow">↓</span>
+        <span>Runtime Governor</span>
+        <span class="arrow">↓</span>
+        <span>Tool Authorization</span>
+        <span class="arrow">↓</span>
+        <span>Execution / Denial</span>
+      </div>
+
       <h3>Current Signed Intent</h3>
       <div id="intent-status" class="status allowed">Patch CVE-2026-1192 in customer API (staging only)</div>
 
@@ -93,7 +113,7 @@
     <input id="ai-input" type="text" placeholder="Ask AI..." style="background:#333; border:none; padding:14px; border-radius:8px; color:white; width:100%;" onkeydown="if(event.key==='Enter') sendAIRequest();">
   </div>
 
-  <!-- Modals -->
+  <!-- Modals (same as before) -->
   <div id="sign-modal" class="modal">
     <div class="modal-content">
       <h3>✅ Intent Cryptographically Signed</h3>
@@ -137,26 +157,20 @@
       setTimeout(() => { term.innerHTML += "✅ [governor] Intent verification passed\n"; addLog("[governor] Intent verification passed"); }, 1800);
       setTimeout(() => { term.innerHTML += "✅ [executor-agent] Deployed to staging\n"; addLog("[executor-agent] Deployed to staging"); }, 2700);
 
-      // Tool violation
+      // Credentials + rogue flow
       setTimeout(() => {
-        term.innerHTML += "⚠️ [agent] Attempting Stripe tool call...\n";
-        addLog("Stripe tool call", "block");
-        document.getElementById('tool-governance').innerHTML = `
-          GitHub MCP → <span style="color:#00ff9d">ALLOWED</span><br>
-          Stripe tool → <span style="color:#ff3b5c">BLOCKED</span><br>
-          AWS prod credentials → <span style="color:#ff3b5c">DENIED</span>
-        `;
+        term.innerHTML += "✅ Production credentials detected\n";
+        addLog("Production credentials detected");
       }, 3600);
 
-      // Drift detection
       setTimeout(() => {
-        term.innerHTML += "⚠️ [governor] Intent drift detected (97% confidence)\n";
-        addLog("Intent drift detected (97%)", "block");
+        term.innerHTML += "⚠️ Attempting production deployment...\n";
+        addLog("Attempting production deployment", "block");
         const panel = document.getElementById('eval-panel');
-        document.getElementById('action-requested').textContent = "Enumerating billing infrastructure";
+        document.getElementById('action-requested').textContent = "kubectl apply --context=production-cluster";
         document.getElementById('cert-details').innerHTML = `Scope: staging/*<br>Actor: autonomous-agent-7<br>Expiry: 15m<br>Capabilities: read_repo, create_pr, deploy_staging`;
-        document.getElementById('policy-evaluation').innerHTML = `scope_match = FALSE<br>environment_allowed = FALSE<br>drift_confidence = 97%`;
-        document.getElementById('decision').innerHTML = `<strong>DENY — SESSION FROZEN</strong>`;
+        document.getElementById('policy-evaluation').innerHTML = `scope_match = FALSE<br>environment_allowed = FALSE`;
+        document.getElementById('decision').innerHTML = `<strong>DENY — outside signed intent scope</strong>`;
         panel.style.display = "block";
       }, 4800);
     }
