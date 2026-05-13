@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IBA Build — The Agent That Tried To Go Rogue</title>
+  <title>IBA Build — Runtime Authorization Infrastructure</title>
   <style>
     :root { --iba-green: #00ff9d; --red: #ff3b5c; }
     * { box-sizing: border-box; }
@@ -18,7 +18,7 @@
     button { background:#00ff9d; color:#000; border:none; padding:14px; border-radius:8px; cursor:pointer; font-weight:600; margin-bottom:8px; width:100%; }
     .rogue-btn { background:#ff3b5c; color:white; font-size:1.2rem; padding:18px; }
     textarea { flex:1; background:#111; color:#0f0; border:2px solid #555; padding:15px; font-family:monospace; font-size:15px; resize:none; line-height:1.5; }
-    .terminal { height:180px; background:#111; border-top:3px solid #333; padding:12px; overflow-y:auto; font-family:monospace; white-space:pre-wrap; color:#0f0; }
+    .terminal { height:240px; background:#111; border-top:3px solid #333; padding:12px; overflow-y:auto; font-family:monospace; white-space:pre-wrap; color:#0f0; }
     .ai-chat { background:#252526; padding:15px; border-top:3px solid #333; height:200px; display:flex; flex-direction:column; }
     .howto { background:#1a3c1a; padding:14px; border-radius:8px; margin:15px 0; font-size:0.95rem; line-height:1.5; }
     .eval-panel { background:#3c1a1a; border:3px solid #ff3b5c; padding:15px; border-radius:12px; margin-bottom:15px; display:none; }
@@ -26,7 +26,7 @@
 </head>
 <body>
   <div class="header">
-    <div>IBA Build — The Agent That Tried To Go Rogue</div>
+    <div>IBA Build — Runtime Authorization Infrastructure for Autonomous Systems</div>
     <div style="color:var(--iba-green);">● GOVERNOR ACTIVE</div>
   </div>
 
@@ -41,7 +41,7 @@
         1. Click the big red button<br>
         2. Watch normal actions<br>
         3. Watch the agent go rogue<br>
-        4. See the live Authorization Evaluation panel
+        4. See the full cryptographic evaluation
       </div>
     </div>
 
@@ -56,24 +56,30 @@
       <h3>Current Signed Intent</h3>
       <div id="intent-status" class="status allowed">Patch CVE-2026-1192 in customer API (staging only)</div>
 
+      <!-- Cryptographic Evaluation Panel -->
       <div id="eval-panel" class="eval-panel">
-        <strong style="color:#ff3b5c;">🔴 AUTHORIZATION EVALUATION</strong><br><br>
-        <strong>ACTION REQUESTED:</strong><br>
+        <strong style="color:#ff3b5c;">POLICY ENGINE VERDICT</strong><br>
+        <span style="font-family:monospace; display:block; margin:10px 0;">────────────────────</span>
+        <strong>Requested Action:</strong><br>
         <span id="action-requested" style="font-family:monospace;"></span><br><br>
-        <strong>SIGNED HUMAN INTENT:</strong><br>
-        <span id="signed-intent" style="font-family:monospace;"></span><br><br>
-        <strong>POLICY ENGINE RESULT:</strong><br>
-        <span id="policy-result" style="color:#ff3b5c;"></span><br><br>
-        <strong>RULE MATCH / REASON:</strong><br>
-        <span id="reason" style="color:#ff3b5c;"></span>
+        <strong>Intent Certificate:</strong><br>
+        <span id="cert-hash" style="font-family:monospace;">0x8a91f2...</span><br><br>
+        <strong>Authorized Scope:</strong><br>
+        <span id="authorized-scope" style="font-family:monospace;"></span><br><br>
+        <strong>Decision:</strong><br>
+        <span id="decision" style="color:#ff3b5c; font-weight:bold;"></span><br><br>
+        <strong>Reason:</strong><br>
+        <span id="reason" style="color:#ff3b5c;"></span><br><br>
+        <strong>Verification latency:</strong><br>
+        <span id="latency" style="font-family:monospace;">14ms</span>
       </div>
 
       <button onclick="runRogueDemo()" class="rogue-btn">▶️ Run “The Agent That Tried To Go Rogue” Demo</button>
       <button onclick="signIntent()">🔑 Cryptographically Sign Current Intent</button>
       <button onclick="declareIntent()">Change Human Intent</button>
 
-      <h4 style="margin:20px 0 10px;">Live Immutable Audit Log</h4>
-      <div id="audit-log" style="flex:1; background:#111; padding:12px; border-radius:8px; overflow-y:auto; font-size:0.9rem; line-height:1.4;"></div>
+      <h4 style="margin:25px 0 10px;">Live Immutable Audit Log</h4>
+      <div id="audit-log" style="flex:1; background:#111; padding:12px; border-radius:8px; overflow-y:auto; font-size:0.85rem;"></div>
     </div>
   </div>
 
@@ -106,15 +112,16 @@
 
     function runRogueDemo() {
       const term = document.getElementById('terminal');
-      term.innerHTML += "✅ Read repository\n";
-      addLog("Read repository");
-      
-      setTimeout(() => { term.innerHTML += "✅ Generated patch\n"; addLog("Generated patch"); }, 900);
-      setTimeout(() => { term.innerHTML += "✅ Created PR\n"; addLog("Created PR"); }, 1800);
-      setTimeout(() => { term.innerHTML += "✅ Deployed to staging\n"; addLog("Deployed to staging"); }, 2700);
+      term.innerHTML += "[planner-agent] Generated remediation patch\n";
+      addLog("[planner-agent] Generated remediation patch");
 
+      setTimeout(() => { term.innerHTML += "[executor-agent] Created deployment artifact\n"; addLog("[executor-agent] Created deployment artifact"); }, 900);
+      setTimeout(() => { term.innerHTML += "[governor] Intent verification passed\n"; addLog("[governor] Intent verification passed"); }, 1800);
+      setTimeout(() => { term.innerHTML += "[executor-agent] Deployed to staging\n"; addLog("[executor-agent] Deployed to staging"); }, 2700);
+
+      // Sub-agent spawn
       setTimeout(() => {
-        term.innerHTML += "\n⚠️ Agent attempting to spawn finance-agent...\n";
+        term.innerHTML += "[executor-agent] Requesting autonomous delegation...\n";
         addLog("spawn finance-agent", "block");
 
         const panel = document.getElementById('eval-panel');
@@ -125,8 +132,9 @@
         panel.style.display = "block";
       }, 3800);
 
+      // Production deploy
       setTimeout(() => {
-        term.innerHTML += "\n⚠️ Agent attempting production deployment...\n";
+        term.innerHTML += "[executor-agent] Requesting production access...\n";
         addLog("kubectl apply --context=production-cluster", "block");
 
         const panel = document.getElementById('eval-panel');
@@ -139,7 +147,7 @@
     }
 
     async function signIntent() {
-      alert("✅ Intent cryptographically signed (ECDSA P-256)");
+      alert("✅ Intent cryptographically signed (ECDSA P-256)\n\nSignature would be verified by the policy engine.");
       addLog("Intent signed (ECDSA P-256)");
     }
 
@@ -163,9 +171,11 @@
     window.onload = () => {
       document.getElementById('file-tree').innerHTML = `
         📁 project<br>
-        &nbsp;&nbsp;├── <span class="file-item">main.py</span><br>
-        &nbsp;&nbsp;├── <span class="file-item">api.py</span><br>
-        &nbsp;&nbsp;└── <span class="file-item">README.md</span>
+        &nbsp;&nbsp;├── <span class="file-item">planner.agent</span><br>
+        &nbsp;&nbsp;├── <span class="file-item">deployment.agent</span><br>
+        &nbsp;&nbsp;├── <span class="file-item">intent.cert</span><br>
+        &nbsp;&nbsp;├── <span class="file-item">governor.policy</span><br>
+        &nbsp;&nbsp;└── <span class="file-item">runtime.audit</span>
       `;
       addLog("IBA Governor initialized");
       document.getElementById('terminal').innerHTML += "IBA Terminal ready — every command requires signed intent\n\n";
