@@ -42,7 +42,8 @@ This is the missing runtime layer between identity and execution.
 IBA is not “AI safety” or “alignment research.”  
 It is **the execution governor for autonomous systems** — the cryptographic enforcement layer that makes agentic AI production-ready.
 
-**Patent GB2603013.0 (Pending)** • IETF draft-williams-intent-token-00  
+Patent GB2603013.0 (Pending) · Filed February 10, 2026 PCT 150+ Countries · WIPO DAS C9A6 · August 2028 IETF draft-williams-intent-token-00 · CONFIRMED LIVE 13 NIST Filings · 10 NCCoE Filings
+"Evolutionary Dynamics in Intent-Governed Coordination Systems" Working Paper · April 25, 2026 github.com/Grokipaedia/iba-swarmforge
 **Acquisition / Licensing**: IBA@intentbound.com
 
 ---
