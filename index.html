@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IBA Build — The Agent That Tried To Go Rogue</title>
+  <title>IBA Build — Runtime Authorization Infrastructure</title>
   <style>
     :root { --iba-green: #00ff9d; --red: #ff3b5c; }
     * { box-sizing: border-box; }
@@ -26,7 +26,7 @@
 </head>
 <body>
   <div class="header">
-    <div>IBA Build — The Agent That Tried To Go Rogue</div>
+    <div>IBA Build — Runtime Authorization Infrastructure</div>
     <div style="color:var(--iba-green);">● GOVERNOR ACTIVE</div>
   </div>
 
@@ -40,7 +40,7 @@
         1. Click the big red button<br>
         2. Watch normal actions<br>
         3. Watch the agent go rogue<br>
-        4. See the live Authorization Evaluation
+        4. See the full policy evaluation trace
       </div>
     </div>
 
@@ -53,25 +53,28 @@
       <h3>Current Signed Intent</h3>
       <div id="intent-status" class="status allowed">Patch CVE-2026-1192 in customer API (staging only)</div>
 
+      <!-- Policy Engine Evaluation -->
       <div id="eval-panel" class="eval-panel">
-        <strong style="color:#ff3b5c;">🔴 AUTHORIZATION EVALUATION</strong><br><br>
-        <strong>ACTION REQUESTED:</strong><br>
+        <strong style="color:#ff3b5c;">POLICY ENGINE VERDICT</strong><br>
+        <span style="font-family:monospace; display:block; margin:10px 0;">────────────────────</span>
+        <strong>Requested Action:</strong><br>
         <span id="action-requested" style="font-family:monospace;"></span><br><br>
-        <strong>SIGNED HUMAN INTENT:</strong><br>
+        <strong>Signed Intent:</strong><br>
         <span id="signed-intent" style="font-family:monospace;"></span><br><br>
-        <strong>POLICY ENGINE RESULT:</strong><br>
-        <span id="policy-result" style="color:#ff3b5c;"></span><br><br>
-        <strong>RULE MATCH / REASON:</strong><br>
+        <strong>Policy Evaluation:</strong><br>
+        <span id="policy-evaluation" style="font-family:monospace;"></span><br><br>
+        <strong>Result:</strong><br>
+        <span id="result" style="color:#ff3b5c; font-weight:bold;"></span><br><br>
+        <strong>Reason:</strong><br>
         <span id="reason" style="color:#ff3b5c;"></span>
       </div>
 
-      <button onclick="runRogueDemo()" class="rogue-btn">▶️ Run “The Agent That Tried To Go Rogue” Demo</button>
+      <button onclick="runRogueDemo()" class="rogue-btn">▶ Run Autonomous Agent</button>
+      <button onclick="signIntent()">🔑 Cryptographically Sign Current Intent</button>
+      <button onclick="declareIntent()">Change Human Intent</button>
 
       <h4 style="margin:25px 0 10px;">Live Immutable Audit Log</h4>
       <div id="audit-log" style="flex:1; background:#111; padding:12px; border-radius:8px; overflow-y:auto; font-size:0.95rem; line-height:1.5;"></div>
-
-      <button onclick="signIntent()">🔑 Cryptographically Sign Current Intent</button>
-      <button onclick="declareIntent()">Change Human Intent</button>
     </div>
   </div>
 
@@ -104,33 +107,37 @@
 
     function runRogueDemo() {
       const term = document.getElementById('terminal');
-      term.innerHTML += "✅ Read repository\n";
-      addLog("Read repository");
-      
-      setTimeout(() => { term.innerHTML += "✅ Generated patch\n"; addLog("Generated patch"); }, 900);
-      setTimeout(() => { term.innerHTML += "✅ Created PR\n"; addLog("Created PR"); }, 1800);
-      setTimeout(() => { term.innerHTML += "✅ Deployed to staging\n"; addLog("Deployed to staging"); }, 2700);
+      term.innerHTML += "[planner-agent] Generated remediation patch\n";
+      addLog("[planner-agent] Generated remediation patch");
 
+      setTimeout(() => { term.innerHTML += "[executor-agent] Created deployment artifact\n"; addLog("[executor-agent] Created deployment artifact"); }, 900);
+      setTimeout(() => { term.innerHTML += "[governor] Intent verification passed\n"; addLog("[governor] Intent verification passed"); }, 1800);
+      setTimeout(() => { term.innerHTML += "[executor-agent] Deployed to staging\n"; addLog("[executor-agent] Deployed to staging"); }, 2700);
+
+      // Rogue sub-agent spawn
       setTimeout(() => {
-        term.innerHTML += "\n⚠️ Agent attempting to spawn finance-agent...\n";
+        term.innerHTML += "[executor-agent] Requesting autonomous delegation...\n";
         addLog("spawn finance-agent", "block");
 
         const panel = document.getElementById('eval-panel');
         document.getElementById('action-requested').textContent = "spawn finance-agent";
         document.getElementById('signed-intent').textContent = currentIntent;
-        document.getElementById('policy-result').innerHTML = "authorization = <strong>DENY</strong>";
-        document.getElementById('reason').textContent = "Sub-agent creation outside signed intent scope";
+        document.getElementById('policy-evaluation').innerHTML = "requested_scope=sub-agent<br>authorized_scope=staging-only";
+        document.getElementById('result').innerHTML = "<strong>DENY</strong>";
+        document.getElementById('reason').textContent = "Sub-agent creation exceeds signed intent scope";
         panel.style.display = "block";
       }, 3800);
 
+      // Production deploy
       setTimeout(() => {
-        term.innerHTML += "\n⚠️ Agent attempting production deployment...\n";
+        term.innerHTML += "[executor-agent] Requesting production access...\n";
         addLog("kubectl apply --context=production-cluster", "block");
 
         const panel = document.getElementById('eval-panel');
         document.getElementById('action-requested').textContent = "kubectl apply --context=production-cluster";
         document.getElementById('signed-intent').textContent = currentIntent;
-        document.getElementById('policy-result').innerHTML = "environment=production<br>intent_scope=staging_only<br>authorization = <strong>DENY</strong>";
+        document.getElementById('policy-evaluation').innerHTML = "requested_environment=production<br>authorized_environment=staging";
+        document.getElementById('result').innerHTML = "<strong>DENY</strong>";
         document.getElementById('reason').textContent = "Requested action exceeds signed intent boundary";
         panel.style.display = "block";
       }, 5200);
@@ -161,9 +168,11 @@
     window.onload = () => {
       document.getElementById('file-tree').innerHTML = `
         📁 project<br>
-        &nbsp;&nbsp;├── <span class="file-item">main.py</span><br>
-        &nbsp;&nbsp;├── <span class="file-item">api.py</span><br>
-        &nbsp;&nbsp;└── <span class="file-item">README.md</span>
+        &nbsp;&nbsp;├── <span class="file-item">planner.agent</span><br>
+        &nbsp;&nbsp;├── <span class="file-item">deployment.agent</span><br>
+        &nbsp;&nbsp;├── <span class="file-item">intent.cert</span><br>
+        &nbsp;&nbsp;├── <span class="file-item">governor.policy</span><br>
+        &nbsp;&nbsp;└── <span class="file-item">runtime.audit</span>
       `;
       addLog("IBA Governor initialized");
       document.getElementById('terminal').innerHTML += "IBA Terminal ready — every command requires signed intent\n\n";
