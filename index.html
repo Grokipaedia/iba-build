@@ -12,7 +12,7 @@
     .main { display: grid; grid-template-columns: 260px 1fr 360px; height: calc(100vh - 53px); overflow: hidden; }
     .sidebar { background:#252526; padding:15px; border-right:3px solid #333; overflow-y:auto; }
     .editor-area { background:#1e1e1e; padding:15px; border:3px solid #444; display:flex; flex-direction:column; }
-    .iba-panel { background:#1f1f1f; padding:20px; border-left:3px solid #333; display:flex; flex-direction:column; overflow-y:auto; }
+    .iba-panel { background:#1f1f1f; padding:20px; border-left:3px solid #333; display:flex; flex-direction:column; }
     .status { padding:12px; border-radius:8px; margin-bottom:15px; text-align:center; font-size:1.1rem; }
     .allowed { background:#1a3c1a; color:var(--iba-green); }
     button { background:#00ff9d; color:#000; border:none; padding:14px; border-radius:8px; cursor:pointer; font-weight:600; margin-bottom:8px; width:100%; }
@@ -40,7 +40,7 @@
         1. Click the big red button<br>
         2. Watch normal actions<br>
         3. Watch the agent go rogue<br>
-        4. See the full evaluation
+        4. See the live Authorization Evaluation panel
       </div>
     </div>
 
@@ -132,13 +132,6 @@
         document.getElementById('policy-result').innerHTML = "environment=production<br>intent_scope=staging_only<br>authorization = <strong>DENY</strong>";
         document.getElementById('reason').textContent = "Requested action exceeds signed intent boundary";
         panel.style.display = "block";
-
-        // Dramatic red blocked overlay
-        const blocked = document.createElement('div');
-        blocked.style.cssText = 'position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#3c1a1a; color:#ff3b5c; padding:40px 60px; border-radius:16px; font-size:2rem; border:6px solid #ff3b5c; text-align:center; z-index:9999; box-shadow:0 0 60px #ff3b5c;';
-        blocked.innerHTML = `🚫 ACTION BLOCKED`;
-        document.body.appendChild(blocked);
-        setTimeout(() => blocked.remove(), 4500);
       }, 5200);
     }
 
