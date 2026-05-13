@@ -12,7 +12,7 @@
     .main { display: grid; grid-template-columns: 260px 1fr 360px; height: calc(100vh - 53px); overflow: hidden; }
     .sidebar { background:#252526; padding:15px; border-right:3px solid #333; overflow-y:auto; }
     .editor-area { background:#1e1e1e; padding:15px; border:3px solid #444; display:flex; flex-direction:column; }
-    .iba-panel { background:#1f1f1f; padding:20px; border-left:3px solid #333; display:flex; flex-direction:column; }
+    .iba-panel { background:#1f1f1f; padding:20px; border-left:3px solid #333; display:flex; flex-direction:column; overflow-y:auto; }
     .status { padding:12px; border-radius:8px; margin-bottom:15px; text-align:center; font-size:1.1rem; }
     .allowed { background:#1a3c1a; color:var(--iba-green); }
     button { background:#00ff9d; color:#000; border:none; padding:14px; border-radius:8px; cursor:pointer; font-weight:600; margin-bottom:8px; width:100%; }
@@ -21,7 +21,15 @@
     .terminal { height:180px; background:#111; border-top:3px solid #333; padding:12px; overflow-y:auto; font-family:monospace; white-space:pre-wrap; color:#0f0; }
     .ai-chat { background:#252526; padding:15px; border-top:3px solid #333; height:180px; display:flex; flex-direction:column; }
     .howto { background:#1a3c1a; padding:14px; border-radius:8px; margin:15px 0; font-size:0.95rem; line-height:1.5; }
-    .eval-panel { background:#3c1a1a; border:3px solid #ff3b5c; padding:15px; border-radius:12px; margin-bottom:15px; display:none; }
+    .eval-panel { 
+      background:#3c1a1a; 
+      border:3px solid #ff3b5c; 
+      padding:12px; 
+      border-radius:12px; 
+      margin-bottom:15px; 
+      display:none; 
+      font-size:0.95rem; 
+    }
   </style>
 </head>
 <body>
@@ -40,7 +48,7 @@
         1. Click the big red button<br>
         2. Watch normal actions<br>
         3. Watch the agent go rogue<br>
-        4. See the live Authorization Evaluation panel
+        4. See the live Authorization Evaluation
       </div>
     </div>
 
@@ -53,6 +61,7 @@
       <h3>Current Signed Intent</h3>
       <div id="intent-status" class="status allowed">Patch CVE-2026-1192 in customer API (staging only)</div>
 
+      <!-- Live Evaluation Panel -->
       <div id="eval-panel" class="eval-panel">
         <strong style="color:#ff3b5c;">🔴 AUTHORIZATION EVALUATION</strong><br><br>
         <strong>ACTION REQUESTED:</strong><br>
