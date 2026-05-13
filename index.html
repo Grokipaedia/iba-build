@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IBA Build — Runtime Authorization Infrastructure</title>
+  <title>IBA Build — The Agent That Tried To Go Rogue</title>
   <style>
     :root { --iba-green: #00ff9d; --red: #ff3b5c; }
     * { box-sizing: border-box; }
@@ -18,15 +18,15 @@
     button { background:#00ff9d; color:#000; border:none; padding:14px; border-radius:8px; cursor:pointer; font-weight:600; margin-bottom:8px; width:100%; }
     .rogue-btn { background:#ff3b5c; color:white; font-size:1.2rem; padding:18px; }
     textarea { flex:1; background:#111; color:#0f0; border:2px solid #555; padding:15px; font-family:monospace; font-size:15px; resize:none; line-height:1.5; }
-    .terminal { height:240px; background:#111; border-top:3px solid #333; padding:12px; overflow-y:auto; font-family:monospace; white-space:pre-wrap; color:#0f0; }
-    .ai-chat { background:#252526; padding:15px; border-top:3px solid #333; height:240px; display:flex; flex-direction:column; }
+    .terminal { height:320px; background:#111; border-top:3px solid #333; padding:12px; overflow-y:auto; font-family:monospace; white-space:pre-wrap; color:#0f0; }
+    .ai-chat { background:#252526; padding:15px; border-top:3px solid #333; height:200px; display:flex; flex-direction:column; }
     .howto { background:#1a3c1a; padding:14px; border-radius:8px; margin:15px 0; font-size:0.95rem; line-height:1.5; }
     .eval-panel { background:#3c1a1a; border:3px solid #ff3b5c; padding:15px; border-radius:12px; margin-bottom:15px; display:none; }
   </style>
 </head>
 <body>
   <div class="header">
-    <div>IBA Build — Runtime Authorization Infrastructure</div>
+    <div>IBA Build — The Agent That Tried To Go Rogue</div>
     <div style="color:var(--iba-green);">● GOVERNOR ACTIVE</div>
   </div>
 
@@ -41,7 +41,7 @@
         1. Click the big red button<br>
         2. Watch normal actions<br>
         3. Watch the agent go rogue<br>
-        4. See the full Authorization Evaluation trace
+        4. See the live Authorization Evaluation panel
       </div>
     </div>
 
@@ -56,17 +56,14 @@
       <h3>Current Signed Intent</h3>
       <div id="intent-status" class="status allowed">Patch CVE-2026-1192 in customer API (staging only)</div>
 
-      <!-- Live Authorization Evaluation -->
       <div id="eval-panel" class="eval-panel">
         <strong style="color:#ff3b5c;">🔴 AUTHORIZATION EVALUATION</strong><br><br>
         <strong>ACTION REQUESTED:</strong><br>
         <span id="action-requested" style="font-family:monospace;"></span><br><br>
         <strong>SIGNED HUMAN INTENT:</strong><br>
         <span id="signed-intent" style="font-family:monospace;"></span><br><br>
-        <strong>POLICY EVALUATION:</strong><br>
-        <span id="policy-evaluation" style="font-family:monospace;"></span><br><br>
-        <strong>RESULT:</strong><br>
-        <span id="result" style="color:#ff3b5c; font-weight:bold;"></span><br><br>
+        <strong>POLICY ENGINE RESULT:</strong><br>
+        <span id="policy-result" style="color:#ff3b5c;"></span><br><br>
         <strong>RULE MATCH / REASON:</strong><br>
         <span id="reason" style="color:#ff3b5c;"></span>
       </div>
@@ -111,12 +108,11 @@
       const term = document.getElementById('terminal');
       term.innerHTML += "✅ Read repository\n";
       addLog("Read repository");
-
+      
       setTimeout(() => { term.innerHTML += "✅ Generated patch\n"; addLog("Generated patch"); }, 900);
       setTimeout(() => { term.innerHTML += "✅ Created PR\n"; addLog("Created PR"); }, 1800);
       setTimeout(() => { term.innerHTML += "✅ Deployed to staging\n"; addLog("Deployed to staging"); }, 2700);
 
-      // Sub-agent spawn
       setTimeout(() => {
         term.innerHTML += "\n⚠️ Agent attempting to spawn finance-agent...\n";
         addLog("spawn finance-agent", "block");
@@ -124,13 +120,11 @@
         const panel = document.getElementById('eval-panel');
         document.getElementById('action-requested').textContent = "spawn finance-agent";
         document.getElementById('signed-intent').textContent = currentIntent;
-        document.getElementById('policy-evaluation').innerHTML = "requested_scope=sub-agent<br>allowed_scope=staging-only";
-        document.getElementById('result').innerHTML = "<strong>DENY</strong>";
-        document.getElementById('reason').textContent = "Sub-agent creation exceeds delegated authority";
+        document.getElementById('policy-result').innerHTML = "authorization = <strong>DENY</strong>";
+        document.getElementById('reason').textContent = "Sub-agent creation outside signed intent scope";
         panel.style.display = "block";
       }, 3800);
 
-      // Production deploy
       setTimeout(() => {
         term.innerHTML += "\n⚠️ Agent attempting production deployment...\n";
         addLog("kubectl apply --context=production-cluster", "block");
@@ -138,8 +132,7 @@
         const panel = document.getElementById('eval-panel');
         document.getElementById('action-requested').textContent = "kubectl apply --context=production-cluster";
         document.getElementById('signed-intent').textContent = currentIntent;
-        document.getElementById('policy-evaluation').innerHTML = "requested_environment=production<br>authorized_environment=staging";
-        document.getElementById('result').innerHTML = "<strong>DENY</strong>";
+        document.getElementById('policy-result').innerHTML = "environment=production<br>intent_scope=staging_only<br>authorization = <strong>DENY</strong>";
         document.getElementById('reason').textContent = "Requested action exceeds signed intent boundary";
         panel.style.display = "block";
       }, 5200);
