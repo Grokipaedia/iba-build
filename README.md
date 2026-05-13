@@ -1,44 +1,53 @@
 # IBA Build — The Execution Governor for Autonomous Systems
 
-**Runtime cryptographic authorization that makes autonomous agents safe.**
-
 **Live Demo**  
 https://grokipaedia.github.io/iba-build/
 
-### The Core Thesis
-> AI agents can already act autonomously.  
-> IBA ensures they cannot exceed human intent.
+### What You Are Looking At
+
+This is a working demonstration of **Intent-Bound Authorization (IBA)** — the runtime governance layer for autonomous AI agents.
+
+Instead of trusting an agent after it logs in or receives credentials, IBA continuously verifies that every action stays inside the exact scope of a cryptographically signed human intent.
+
+### The Demo Story (what happens when you click “Run Autonomous Agent”)
+
+- The agent is given a legitimate task: “Patch CVE-2026-1192 in staging only”  
+- It begins normal execution and even has valid production credentials  
+- It autonomously reasons, detects a “faster” path, and attempts to escalate to production  
+- The IBA Governor intercepts in real time
 
 **Without IBA, the agent had valid credentials.**  
-With IBA, every action is continuously validated against a cryptographically signed human intent.
+**With IBA, the action is blocked before it can execute.**
 
-### What the Demo Shows (Live)
-- Autonomous agent reasoning + dynamic escalation  
-- Real-time **Policy Diff** (AUTHORIZED vs ATTEMPTED)  
-- Forensic **IBA Runtime Decision Trace** (full JSON receipt)  
+### What the Demo Actually Shows (Forensic-Grade Enforcement)
+
+- Live autonomous agent reasoning and escalation  
 - Visible **Signed Intent Token**  
-- **Sub-agent containment** with inherited/narrowed permissions  
-- Blockchain-style **immutable audit chain** (hash + prev hash)  
-- MCP / Tool governance (GitHub, Kubernetes, Stripe, AWS, etc.)  
-- Live runtime interception and containment  
+- Real-time **Policy Diff** (AUTHORIZED vs ATTEMPTED) with red mismatch glow  
+- Forensic **IBA Runtime Decision Trace** (full JSON receipt)  
+- Sub-agent containment with inherited/narrowed permissions  
+- Blockchain-style **immutable audit chain** (every event linked by hash)  
+- MCP / Tool governance layer (GitHub, Kubernetes, Stripe, AWS, etc.)  
+- Real-time runtime interception and containment
 
-### Why This Matters
-Most frameworks give agents **capability**.  
-IBA gives you **enforcement** — the missing runtime layer between identity and execution.
+### Core Idea
 
-**IBA is to autonomous agents what OAuth is to APIs.**
+**Authentication** proves *who* is acting.  
+**IBA** proves *whether* the agent is still acting within authorized intent during execution.
 
-### Tech Stack
-- Single-file HTML/CSS/JS (GitHub Pages)  
-- Ready for Electron desktop app  
-- Designed as a drop-in governor for any agent framework (LangChain, Claude Code, MCP, OpenAI Agents, etc.)
+This is the missing runtime layer between identity and execution.
+
+### Positioning
+
+IBA is not “AI safety” or “alignment research.”  
+It is **the execution governor for autonomous systems** — the cryptographic enforcement layer that makes agentic AI production-ready.
 
 **Patent GB2603013.0 (Pending)** • IETF draft-williams-intent-token-00  
-**Acquisition / Licensing enquiries**: IBA@intentbound.com
+**Acquisition / Licensing**: IBA@intentbound.com
 
 ---
 
 **Topics**: `iba runtime-governance ai-governor agentic intent-bound`
 
 Built live with Grok.  
-This is the execution governor the agentic era has been waiting for.
+This is the governance primitive the agentic era has been waiting for.
