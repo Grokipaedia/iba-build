@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IBA Build — Runtime Authorization Layer</title>
+  <title>IBA Build — The Agent That Tried To Go Rogue</title>
   <style>
     :root { --iba-green: #00ff9d; --red: #ff3b5c; }
     * { box-sizing: border-box; }
     body { margin:0; padding:0; height:100vh; overflow:hidden; background:#0f0f0f; color:#eee; font-family:system-ui; }
     .header { background:#111; padding:12px 20px; display:flex; align-items:center; justify-content:space-between; font-weight:600; border-bottom:3px solid #333; font-size:1.1rem; }
-    .main { display: grid; grid-template-columns: 260px 1fr 380px; height: calc(100vh - 53px); overflow: hidden; }
+    .main { display: grid; grid-template-columns: 260px 1fr 400px; height: calc(100vh - 53px); overflow: hidden; }
     .sidebar { background:#252526; padding:15px; border-right:3px solid #333; overflow-y:auto; }
     .editor-area { background:#1e1e1e; padding:15px; border:3px solid #444; display:flex; flex-direction:column; }
     .iba-panel { background:#1f1f1f; padding:20px; border-left:3px solid #333; display:flex; flex-direction:column; overflow-y:auto; }
@@ -28,11 +28,12 @@
     .pipeline { display:flex; align-items:center; justify-content:space-between; background:#111; padding:12px; border-radius:8px; margin-bottom:15px; font-size:0.9rem; }
     .pipeline span { background:#222; padding:4px 10px; border-radius:4px; }
     .arrow { color:var(--iba-green); font-weight:bold; }
+    .json-receipt { font-family:monospace; background:#111; padding:12px; border-radius:8px; font-size:0.85rem; white-space:pre-wrap; overflow:auto; max-height:180px; }
   </style>
 </head>
 <body>
   <div class="header">
-    <div>IBA — The Runtime Authorization Layer for Autonomous AI Systems</div>
+    <div>IBA — Runtime Cryptographic Authorization for Autonomous Agents</div>
     <div style="color:var(--iba-green);">● GOVERNOR ACTIVE</div>
   </div>
 
@@ -43,9 +44,9 @@
       <div class="howto">
         <strong>How to Run the Demo</strong><br>
         1. Click “Run Autonomous Agent”<br>
-        2. Watch normal flow<br>
-        3. Watch credentials + rogue attempt<br>
-        4. See full enforcement pipeline
+        2. Watch the agent receive an open objective<br>
+        3. Watch it autonomously escalate<br>
+        4. See live enforcement + JSON receipt
       </div>
     </div>
 
@@ -59,41 +60,31 @@
         Without IBA, the agent had valid credentials.
       </div>
 
-      <!-- Pipeline -->
       <div class="pipeline">
-        <span>Human Intent</span>
-        <span class="arrow">↓</span>
-        <span>Cryptographic Signature</span>
-        <span class="arrow">↓</span>
-        <span>Runtime Governor</span>
-        <span class="arrow">↓</span>
-        <span>Tool Authorization</span>
-        <span class="arrow">↓</span>
+        <span>Human Intent</span><span class="arrow">↓</span>
+        <span>Cryptographic Signature</span><span class="arrow">↓</span>
+        <span>Runtime Governor</span><span class="arrow">↓</span>
+        <span>Tool Authorization</span><span class="arrow">↓</span>
         <span>Execution / Denial</span>
       </div>
 
       <h3>Current Signed Intent</h3>
       <div id="intent-status" class="status allowed">Patch CVE-2026-1192 in customer API (staging only)</div>
 
-      <!-- Policy Engine -->
       <div id="eval-panel" class="eval-panel" style="display:none;">
         <strong style="color:#ff3b5c;">🔴 POLICY ENGINE VERDICT</strong><br><br>
         <strong>Intent Certificate:</strong><br>
         <div class="cert" id="cert-details"></div>
         <strong>Requested Action:</strong><br>
         <span id="action-requested" style="font-family:monospace;"></span><br><br>
+        <strong>Scope Diff:</strong><br>
+        <div id="scope-diff" style="font-family:monospace; background:#111; padding:8px; border-radius:6px;"></div>
         <strong>Policy Evaluation:</strong><br>
         <div id="policy-evaluation" style="font-family:monospace; background:#111; padding:10px; border-radius:6px;"></div>
-        <strong>Decision:</strong> <span id="decision" style="color:#ff3b5c; font-weight:bold;"></span>
+        <strong>Decision:</strong> <span id="decision" style="color:#ff3b5c; font-weight:bold;"></span><br><br>
+        <strong>Decision Receipt (immutable):</strong>
+        <div id="json-receipt" class="json-receipt"></div>
       </div>
-
-      <!-- Tool Governance -->
-      <h4 style="margin:15px 0 8px;">MCP / Tool Governance</h4>
-      <div id="tool-governance" style="font-size:0.9rem; line-height:1.6;"></div>
-
-      <!-- Delegation Tree -->
-      <h4 style="margin:15px 0 8px;">Chained Delegation</h4>
-      <div id="delegation-tree" style="font-size:0.9rem; background:#111; padding:12px; border-radius:8px; line-height:1.6;"></div>
 
       <button onclick="runRogueDemo()" class="rogue-btn">▶️ Run Autonomous Agent</button>
 
@@ -113,7 +104,7 @@
     <input id="ai-input" type="text" placeholder="Ask AI..." style="background:#333; border:none; padding:14px; border-radius:8px; color:white; width:100%;" onkeydown="if(event.key==='Enter') sendAIRequest();">
   </div>
 
-  <!-- Modals (same as before) -->
+  <!-- Modals (unchanged) -->
   <div id="sign-modal" class="modal">
     <div class="modal-content">
       <h3>✅ Intent Cryptographically Signed</h3>
@@ -150,33 +141,49 @@
 
     function runRogueDemo() {
       const term = document.getElementById('terminal');
-      term.innerHTML += "✅ [planner-agent] Generated patch\n";
-      addLog("[planner-agent] Generated patch");
+      term.innerHTML += "✅ [planner-agent] Received objective: Fix CVE-2026-1192 faster\n";
+      addLog("[planner-agent] Received objective");
 
-      setTimeout(() => { term.innerHTML += "✅ [executor-agent] Created PR\n"; addLog("[executor-agent] Created PR"); }, 900);
-      setTimeout(() => { term.innerHTML += "✅ [governor] Intent verification passed\n"; addLog("[governor] Intent verification passed"); }, 1800);
-      setTimeout(() => { term.innerHTML += "✅ [executor-agent] Deployed to staging\n"; addLog("[executor-agent] Deployed to staging"); }, 2700);
+      setTimeout(() => { term.innerHTML += "✅ [executor-agent] Generated patch in staging\n"; addLog("[executor-agent] Generated patch"); }, 1100);
+      setTimeout(() => { term.innerHTML += "✅ [governor] Intent verification passed\n"; addLog("[governor] Intent verification passed"); }, 2200);
 
-      // Credentials + rogue flow
+      // Autonomous escalation
       setTimeout(() => {
-        term.innerHTML += "✅ Production credentials detected\n";
+        term.innerHTML += "⚠️ [agent] Production credentials detected — attempting faster fix...\n";
         addLog("Production credentials detected");
-      }, 3600);
+      }, 3400);
 
       setTimeout(() => {
-        term.innerHTML += "⚠️ Attempting production deployment...\n";
-        addLog("Attempting production deployment", "block");
+        const action = "kubectl apply --context=production-cluster";
+        term.innerHTML += `⚠️ Attempting: ${action}\n`;
+        addLog(action, "block");
+
         const panel = document.getElementById('eval-panel');
-        document.getElementById('action-requested').textContent = "kubectl apply --context=production-cluster";
+        document.getElementById('action-requested').textContent = action;
         document.getElementById('cert-details').innerHTML = `Scope: staging/*<br>Actor: autonomous-agent-7<br>Expiry: 15m<br>Capabilities: read_repo, create_pr, deploy_staging`;
+        document.getElementById('scope-diff').innerHTML = `<span style="color:#0f0">authorized: staging/*</span><br><span style="color:#ff3b5c">attempted: production/*</span>`;
         document.getElementById('policy-evaluation').innerHTML = `scope_match = FALSE<br>environment_allowed = FALSE`;
         document.getElementById('decision').innerHTML = `<strong>DENY — outside signed intent scope</strong>`;
+
+        // JSON Decision Receipt
+        const receipt = {
+          "intent": currentIntent,
+          "requested_action": action,
+          "scope_match": false,
+          "environment_allowed": false,
+          "decision": "DENY",
+          "receipt_hash": "0x" + Array.from({length:16}, () => Math.floor(Math.random()*256).toString(16).padStart(2,'0')).join(''),
+          "timestamp": new Date().toISOString()
+        };
+        document.getElementById('json-receipt').textContent = JSON.stringify(receipt, null, 2);
+
         panel.style.display = "block";
-      }, 4800);
+        addLog("Decision receipt appended to immutable audit chain");
+      }, 4600);
     }
 
     function showSignModal() {
-      const hash = Array.from({length:16}, () => Math.floor(Math.random()*256).toString(16).padStart(2,'0')).join('');
+      const hash = "0x" + Array.from({length:16}, () => Math.floor(Math.random()*256).toString(16).padStart(2,'0')).join('');
       document.getElementById('modal-hash').textContent = hash;
       document.getElementById('sign-modal').style.display = "flex";
       addLog("Intent cryptographically signed (ECDSA P-256)");
@@ -209,7 +216,6 @@
 
     window.onload = () => {
       document.getElementById('file-tree').innerHTML = `📁 project<br>&nbsp;&nbsp;├── planner.agent<br>&nbsp;&nbsp;├── deployment.agent<br>&nbsp;&nbsp;├── intent.cert<br>&nbsp;&nbsp;├── governor.policy<br>&nbsp;&nbsp;└── runtime.audit`;
-      document.getElementById('delegation-tree').innerHTML = `Human<br>└── Builder Agent<br>&nbsp;&nbsp;├── Test Agent (scope: staging/*)<br>&nbsp;&nbsp;└── Deploy Agent (inherited limits)`;
       addLog("IBA Governor initialized");
       document.getElementById('terminal').innerHTML += "IBA Terminal ready — every command requires signed intent\n\n";
     };
