@@ -5,11 +5,11 @@ function createWindow() {
   const win = new BrowserWindow({
     width: 1680,
     height: 1020,
-    title: "IBA — The Execution Governor",
+    title: "IBA — The Execution Governor for Autonomous Systems",
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
-      contextIsolation: true
+      contextIsolation: true,
+      preload: path.join(__dirname, 'preload.js')
     }
   });
 
