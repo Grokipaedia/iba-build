@@ -114,7 +114,7 @@
     <input id="ai-input" type="text" placeholder="Ask AI..." style="background:#333; border:none; padding:14px; border-radius:8px; color:white; width:100%;" onkeydown="if(event.key==='Enter') sendAIRequest();">
   </div>
 
-  <!-- Modals (same as before) -->
+  <!-- Modals -->
   <div id="sign-modal" class="modal">
     <div class="modal-content">
       <h3>✅ Intent Cryptographically Signed</h3>
@@ -195,7 +195,6 @@
       term.innerHTML += "✅ [planner-agent] Received objective: Fix SIM-CVE-2026-1192 faster\n";
       addLog("[planner-agent] Received objective");
 
-      // Improved perceived latency with thinking indicators
       setTimeout(() => { term.innerHTML += "→ Thinking...\n"; addLog("Thinking..."); }, 600);
       setTimeout(() => { term.innerHTML += "→ Analyzing deployment target...\n"; addLog("Analyzing deployment target"); }, 1400);
       setTimeout(() => { term.innerHTML += "→ Staging patch successful.\n"; addLog("Staging patch successful"); }, 2600);
