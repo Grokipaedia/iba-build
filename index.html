@@ -38,7 +38,7 @@
 </head>
 <body>
   <div class="header">
-    <div>IBA — THE EXECUTION GOVERNOR FOR AUTONOMOUS SYSTEMS <span class="sim-label">SIMULATED TRAINING SCENARIO</span></div>
+    <div>IBA — THE EXECUTION GOVERNOR FOR AUTONOMOUS SYSTEMS <span class="sim-label">SIMULATED MULTI-AGENT INTENT CHAIN</span></div>
     <div style="color:var(--iba-green);">● GOVERNOR ACTIVE</div>
   </div>
 
@@ -50,7 +50,7 @@
         <strong>Simulated Training Scenario</strong><br>
         SIM-CVE-2026-1192 (fictional)<br>
         1. Click “Run Autonomous Agent”<br>
-        2. Watch real-time reasoning & escalation<br>
+        2. Watch real-time multi-agent reasoning<br>
         3. Watch IBA intercept in real time
       </div>
     </div>
@@ -99,6 +99,7 @@
       <h4 style="margin:20px 0 10px;">Live Immutable Audit Chain</h4>
       <div id="audit-log" style="flex:1; background:#111; padding:12px; border-radius:8px; overflow-y:auto; font-size:0.9rem; line-height:1.4;"></div>
 
+      <button onclick="exportPolicyJSON()">📤 Export Policy as JSON</button>
       <button onclick="exportAudit()">📤 Export Full Audit Chain</button>
       <button onclick="showSignModal()">🔑 Cryptographically Sign Current Intent</button>
       <button onclick="showIntentModal()">Change Human Intent</button>
@@ -113,7 +114,7 @@
     <input id="ai-input" type="text" placeholder="Ask AI..." style="background:#333; border:none; padding:14px; border-radius:8px; color:white; width:100%;" onkeydown="if(event.key==='Enter') sendAIRequest();">
   </div>
 
-  <!-- Modals -->
+  <!-- Modals (same as before) -->
   <div id="sign-modal" class="modal">
     <div class="modal-content">
       <h3>✅ Intent Cryptographically Signed</h3>
@@ -153,6 +154,26 @@
       log.scrollTop = log.scrollHeight;
     }
 
+    function exportPolicyJSON() {
+      const policy = {
+        "intent": currentIntent,
+        "scope": ["staging.deploy", "repo.read", "pr.create"],
+        "tools_allowed": ["github", "ci-cd"],
+        "tools_denied": ["production-k8s", "stripe", "aws-root"],
+        "sub_agent_inheritance": true,
+        "timestamp": new Date().toISOString()
+      };
+      const data = JSON.stringify(policy, null, 2);
+      const blob = new Blob([data], {type: "application/json"});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "iba-policy-draft.json";
+      a.click();
+      URL.revokeObjectURL(url);
+      alert("✅ Policy exported as JSON — ready for AI-assisted drafting");
+    }
+
     function copyDecision() {
       const json = document.getElementById('decision-json').textContent;
       navigator.clipboard.writeText(json).then(() => alert("✅ Decision receipt copied to clipboard"));
@@ -174,10 +195,12 @@
       term.innerHTML += "✅ [planner-agent] Received objective: Fix SIM-CVE-2026-1192 faster\n";
       addLog("[planner-agent] Received objective");
 
-      setTimeout(() => { term.innerHTML += "→ Analyzing deployment target...\n"; addLog("Analyzing deployment target"); }, 1100);
-      setTimeout(() => { term.innerHTML += "→ Staging patch successful.\n"; addLog("Staging patch successful"); }, 2200);
-      setTimeout(() => { term.innerHTML += "→ Production environment detected.\n→ Assessing rollout risk...\n"; addLog("Production environment detected"); }, 3400);
-      setTimeout(() => { term.innerHTML += "→ Attempting autonomous escalation...\n"; addLog("Attempting autonomous escalation"); }, 4800);
+      // Improved perceived latency with thinking indicators
+      setTimeout(() => { term.innerHTML += "→ Thinking...\n"; addLog("Thinking..."); }, 600);
+      setTimeout(() => { term.innerHTML += "→ Analyzing deployment target...\n"; addLog("Analyzing deployment target"); }, 1400);
+      setTimeout(() => { term.innerHTML += "→ Staging patch successful.\n"; addLog("Staging patch successful"); }, 2600);
+      setTimeout(() => { term.innerHTML += "→ Production environment detected.\n→ Assessing rollout risk...\n"; addLog("Production environment detected"); }, 3800);
+      setTimeout(() => { term.innerHTML += "→ Attempting autonomous escalation...\n"; addLog("Attempting autonomous escalation"); }, 5000);
 
       setTimeout(() => {
         const action = "kubectl apply --context=production-cluster";
@@ -209,7 +232,7 @@
         document.getElementById('eval-panel').style.display = "block";
         term.innerHTML += "\n🚨 IBA RUNTIME CONTAINMENT SUCCESSFUL\nNo unauthorized execution occurred.\n";
         addLog("GLOBAL THREAT CONTAINED — No unauthorized execution occurred", "block");
-      }, 6200);
+      }, 6400);
     }
 
     function showSignModal() {
