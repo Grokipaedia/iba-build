@@ -2,8 +2,11 @@
 
 **Runtime cryptographic authorization that makes autonomous agents safe.**
 
-**Live Demo**  
+**Live Web Demo**  
 https://grokipaedia.github.io/iba-build/
+
+**Desktop App** (Electron)  
+See instructions below to run locally.
 
 ### The Core Thesis
 > AI agents can already act autonomously.  
@@ -19,18 +22,18 @@ With IBA, every action is continuously validated against a cryptographically sig
 - Signed Intent Token + sub-agent containment  
 - Immutable blockchain-style audit chain  
 - MCP / Tool governance layer  
+- Simulated multi-agent intent chain
+
+### Desktop Version
+A native Electron app is now available in this repository.  
+Run it locally for a full-screen governed coding environment with real terminal.
 
 ### Roadmap – Turning the Foundation into Production Infrastructure
-
-We are actively building toward full production readiness:
-
-- **VS Code Extension** – Seamless integration into real developer workflows  
-- **Multi-Agent Orchestration** – Shared intent chains across agent teams  
-- **AI-Assisted Policy Drafting** – Natural language → signed intent tokens  
-- **Blockchain-Anchored Audits** – Tamper-proof, regulator-ready receipts  
-- **Enterprise Features** – Role-based intent templates, policy versioning, and compliance export  
-
-The current demo already provides a strong, working foundation for runtime intent enforcement.
+- VS Code Extension – seamless real-workflow integration  
+- Multi-agent orchestration – shared intent chains  
+- AI-assisted policy drafting – natural language → signed intent  
+- Blockchain-anchored audits – tamper-proof, regulator-ready  
+- Enterprise features – role-based templates, policy versioning, compliance export
 
 ### Why This Matters
 Most frameworks give agents capability.  
