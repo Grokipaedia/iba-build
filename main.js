@@ -5,24 +5,18 @@ function createWindow() {
   const win = new BrowserWindow({
     width: 1680,
     height: 1020,
-    title: "IBA — The Execution Governor for Autonomous Systems",
+    title: "IBA — The Execution Governor",
     webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false
+      preload: path.join(__dirname, 'preload.js'),
+      nodeIntegration: false,
+      contextIsolation: true
     }
   });
 
   win.loadFile('index.html');
-  // win.webContents.openDevTools();   // Uncomment if you want DevTools on launch
 }
 
-app.whenReady().then(() => {
-  createWindow();
-
-  app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow();
-  });
-});
+app.whenReady().then(createWindow);
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
